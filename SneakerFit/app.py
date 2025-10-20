@@ -66,13 +66,17 @@ def get_user_by_email(email):
         pass
     return None
 
-
 @app.route('/')
+def first():
+    """Вступительная страница сайта"""
+    return render_template('first_page.html')
+
+@app.route('/loggin')
 def index():
     """Главная страница с формой регистрации"""
     if session.get('user_logged_in'):
         return redirect('/welcome')
-    return render_template('index.html')
+    return render_template('register.html')
 
 
 @app.route('/register', methods=['POST'])
