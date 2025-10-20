@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добро пожаловать!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card welcome-card">
+            <div class="welcome-header">
+                <div class="welcome-icon">🎉</div>
+                <h1>Добро пожаловать, <span class="username">{{ username }}</span>!</h1>
+                <p class="welcome-subtitle">Рады видеть вас в нашей системе</p>
+            </div>
+
+            <div class="user-info">
+                <div class="info-card">
+                    <div class="info-icon">👤</div>
+                    <div class="info-content">
+                        <h3>Ваш профиль</h3>
+                        <p><strong>Имя пользователя:</strong> {{ username }}</p>
+                        <p><strong>Email:</strong> {{ email }}</p>
+                        <p><strong>Статус:</strong> <span class="status-active">Активен</span></p>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="info-icon">🕒</div>
+                    <div class="info-content">
+                        <h3>Статистика</h3>
+                        <p><strong>Дата регистрации:</strong> Сегодня</p>
+                        <p><strong>Последний вход:</strong> Только что</p>
+                        <p><strong>Активность:</strong> Новая</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="welcome-actions">
+                <div class="action-buttons">
+                    <a href="/users" class="btn btn-secondary">
+                        👥 Посмотреть всех пользователей
+                    </a>
+                    <a href="/" class="btn btn-primary">
+                        🏠 На главную
+                    </a>
+                </div>
+
+                <div class="logout-section">
+                    <a href="/logout" class="btn btn-logout">
+                        🚪 Выйти из системы
+                    </a>
+                </div>
+            </div>
+
+            <div class="welcome-footer">
+                <p>Спасибо, что выбрали нашу платформу! 🚀</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
