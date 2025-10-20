@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация и Вход</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>Добро пожаловать! 👋</h1>
+            <p class="subtitle">Зарегистрируйтесь или войдите в систему</p>
+
+            <div class="tabs">
+                <button class="tab-button active" data-tab="register">Регистрация</button>
+                <button class="tab-button" data-tab="login">Вход</button>
+            </div>
+
+            <!-- Форма регистрации -->
+            <div id="register-tab" class="tab-content active">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="reg-username">Имя пользователя *</label>
+                        <input type="text" id="reg-username" name="username" required minlength="3">
+                        <span class="error" id="reg-usernameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-email">Email *</label>
+                        <input type="email" id="reg-email" name="email" required>
+                        <span class="error" id="reg-emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reg-password">Пароль *</label>
+                        <input type="password" id="reg-password" name="password" required minlength="6">
+                        <span class="error" id="reg-passwordError"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="registerBtn">
+                        <span id="registerBtnText">Зарегистрироваться</span>
+                        <div id="registerSpinner" class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Форма входа -->
+            <div id="login-tab" class="tab-content">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="login-email">Email *</label>
+                        <input type="email" id="login-email" name="email" required>
+                        <span class="error" id="login-emailError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="login-password">Пароль *</label>
+                        <input type="password" id="login-password" name="password" required>
+                        <span class="error" id="login-passwordError"></span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="loginBtn">
+                        <span id="loginBtnText">Войти</span>
+                        <div id="loginSpinner" class="spinner" style="display: none;"></div>
+                    </button>
+                </form>
+            </div>
+
+            <div class="divider">
+                <span>или</span>
+            </div>
+
+            <!-- Быстрый вход -->
+            <div class="quick-actions">
+                <a href="{{ url_for('quick_login') }}" class="btn btn-demo">
+                    🚀 Быстрый демо-вход
+                </a>
+                <small>Попробуйте без регистрации</small>
+            </div>
+
+            <!-- Сообщения -->
+            <div id="message" class="message"></div>
+
+            <!-- Футер -->
+            <div class="footer">
+                <small>
+                    <a href="/users">📊 Посмотреть всех пользователей</a>
+                </small>
+            </div>
+        </div>
+    </div>
+<script src="../static/js/script.js"></script>
+</body>
+</html>
