@@ -332,6 +332,14 @@ def view_users():
 def about():
     return render_template("about.html")
 
+@app.route("/how")
+def how():
+    return render_template("how.html")
+
+@app.route("/fit")
+def fit():
+    return render_template("fit.html")
+
 
 if __name__ == '__main__':
     ensure_storage()
