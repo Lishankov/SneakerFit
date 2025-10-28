@@ -1,23 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>welcone to SneakerFit</title>
+    <title>SneakerFit — Точная 3D-модель стопы</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
 </head>
 <body>
-    <div class="all_first_page">
-        <div class="label_upper_container">
-            <div class="label_upper_box">
-                <p class="SneakerFit_label">SneakerFit</p>
+    <header class="topbar">
+        <div class="logo">SneakerFit</div>
+        <nav class="menu">
+            <button class="measure-btn" onclick="window.location='/measure'">Измерить стопу</button>
+            <button class="profile-btn" onclick="window.location='/profile'">Профиль</button>
+        </nav>
+    </header>
+
+    <main class="hero">
+        <section class="text-block">
+            <h1>Точная 3D‑модель вашей стопы</h1>
+            <p>Мы специализируемся на подборе обуви для сложных случаев: высокий подъём, плоскостопие,
+                широкий или узкий тип стопы. Наши 3D‑модели стопы улучшают комфорт в каждой паре.</p>
+            <div class="actions">
+                <button class="primary">Начать измерение</button>
             </div>
-            <div class="label_upper_box">
-                <button>Как это работает?</button>
-            </div>
-            <div class="label_upper_box">
-                <a href="/loggin"><button>Войти</button></a>
-            </div>
-        </div>
-    </div>
+        </section>
+
+        <section class="preview-block">
+            <div class="foot-view">3D‑модель стопы</div>
+        </section>
+    </main>
 </body>
 </html>

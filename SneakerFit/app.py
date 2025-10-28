@@ -2,23 +2,17 @@ from flask import Flask, render_template, request, jsonify, redirect, session
 import datetime
 import os
 import re
-import random
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-123456789'
 
-# Файл для хранения пользователей
 USERS_FILE = 'users.txt'
 
-
 def is_valid_email(email):
-    """Проверка валидности email"""
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-
 def user_exists(email):
-    """Проверка существования пользователя"""
     if not os.path.exists(USERS_FILE):
         return False
 
@@ -31,9 +25,7 @@ def user_exists(email):
         pass
     return False
 
-
 def save_user(user_data):
-    """Сохранение пользователя в файл"""
     try:
         data_string = f"{user_data['username']} | {user_data['email']} | {user_data['password']} | {user_data['registration_date']} | {user_data.get('registration_type', 'form')}\n"
 
@@ -44,9 +36,7 @@ def save_user(user_data):
         print(f"Ошибка сохранения: {e}")
         return False
 
-
 def get_user_by_email(email):
-    """Получение пользователя по email"""
     if not os.path.exists(USERS_FILE):
         return None
 
@@ -68,186 +58,105 @@ def get_user_by_email(email):
 
 @app.route('/')
 def first():
-    """Вступительная страница сайта"""
     return render_template('first_page.html')
 
 @app.route('/loggin')
 def index():
-    """Главная страница с формой регистрации"""
     if session.get('user_logged_in'):
         return redirect('/welcome')
     return render_template('register.html')
 
 
+@app.route('/profile')
+def profile():
+    if not session.get('user_logged_in'):
+        return redirect('/loggin')
+    return redirect('/welcome')
+
+
+@app.route('/measure')
+def measure():
+    if not session.get('user_logged_in'):
+        return redirect('/loggin')
+    return render_template('measure.html')
+
+
 @app.route('/register', methods=['POST'])
 def register():
-    """Обработка регистрации"""
     try:
         username = request.form.get('username', '').strip()
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
-        # Валидация данных
         if not username or not email or not password:
-            return jsonify({
-                'success': False,
-                'message': 'Все поля обязательны для заполнения'
-            })
+            return jsonify({'success': False, 'message': 'Все поля обязательны'})
 
         if len(username) < 3:
-            return jsonify({
-                'success': False,
-                'message': 'Имя пользователя должно быть не менее 3 символов'
-            })
+            return jsonify({'success': False, 'message': 'Минимум 3 символа'})
 
         if not is_valid_email(email):
-            return jsonify({
-                'success': False,
-                'message': 'Введите корректный email адрес'
-            })
+            return jsonify({'success': False, 'message': 'Введите корректный email'})
 
         if len(password) < 6:
-            return jsonify({
-                'success': False,
-                'message': 'Пароль должен быть не менее 6 символов'
-            })
+            return jsonify({'success': False, 'message': 'Пароль слишком короткий'})
 
-        # Проверка существования пользователя
         if user_exists(email):
-            return jsonify({
-                'success': False,
-                'message': 'Пользователь с таким email уже существует'
-            })
+            return jsonify({'success': False, 'message': 'Пользователь уже существует'})
 
-        # Подготовка данных пользователя
         user_data = {
             'username': username,
             'email': email,
             'password': password,
-            'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'registration_type': 'form'
+            'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
 
-        # Сохранение в файл
         if save_user(user_data):
-            # Автоматический вход после регистрации
             session['user_logged_in'] = True
             session['user_email'] = email
             session['user_name'] = username
 
-            return jsonify({
-                'success': True,
-                'message': f'Регистрация успешна! Добро пожаловать, {username}!',
-                'redirect': '/welcome'
-            })
+            return jsonify({'success': True, 'message': 'Готово!', 'redirect': '/welcome'})
         else:
-            return jsonify({
-                'success': False,
-                'message': 'Ошибка при сохранении данных'
-            })
-
+            return jsonify({'success': False, 'message': 'Ошибка сохранения'})
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': f'Произошла ошибка: {str(e)}'
-        })
+        return jsonify({'success': False, 'message': str(e)})
 
 
 @app.route('/login', methods=['POST'])
 def login():
-    """Обработка входа"""
     try:
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '')
 
-        if not email or not password:
-            return jsonify({
-                'success': False,
-                'message': 'Введите email и пароль'
-            })
-
         user = get_user_by_email(email)
 
         if not user:
-            return jsonify({
-                'success': False,
-                'message': 'Пользователь с таким email не найден'
-            })
+            return jsonify({'success': False, 'message': 'Пользователь не найден'})
 
         if user['password'] != password:
-            return jsonify({
-                'success': False,
-                'message': 'Неверный пароль'
-            })
+            return jsonify({'success': False, 'message': 'Неверный пароль'})
 
-        # Успешный вход
         session['user_logged_in'] = True
         session['user_email'] = email
         session['user_name'] = user['username']
 
-        return jsonify({
-            'success': True,
-            'message': f'Добро пожаловать, {user["username"]}!',
-            'redirect': '/welcome'
-        })
+        return jsonify({'success': True, 'redirect': '/welcome'})
 
     except Exception as e:
-        return jsonify({
-            'success': False,
-            'message': f'Произошла ошибка: {str(e)}'
-        })
+        return jsonify({'success': False, 'message': str(e)})
 
 
 @app.route('/welcome')
 def welcome():
-    """Страница приветствия после входа"""
     if not session.get('user_logged_in'):
         return redirect('/')
-
-    user_name = session.get('user_name', 'Пользователь')
-    user_email = session.get('user_email', '')
-
-    return render_template('welcome.html',
-                           username=user_name,
-                           email=user_email)
+    return render_template('welcome.html', username=session['user_name'], email=session['user_email'])
 
 
 @app.route('/logout')
 def logout():
-    """Выход из системы"""
     session.clear()
     return redirect('/')
-
-
-@app.route('/quick-login')
-def quick_login():
-    """Быстрый вход для демо"""
-    demo_users = [
-        {"username": "Демо Пользователь", "email": "demo@example.com", "password": "demo123"},
-        {"username": "Тестовый Аккаунт", "email": "test@example.com", "password": "test123"},
-        {"username": "Гость", "email": "guest@example.com", "password": "guest123"}
-    ]
-
-    # Создаем демо пользователей если их нет
-    for user in demo_users:
-        if not user_exists(user['email']):
-            user_data = {
-                'username': user['username'],
-                'email': user['email'],
-                'password': user['password'],
-                'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'registration_type': 'demo'
-            }
-            save_user(user_data)
-
-    # Входим под первым демо пользователем
-    demo_user = demo_users[0]
-    session['user_logged_in'] = True
-    session['user_email'] = demo_user['email']
-    session['user_name'] = demo_user['username']
-
-    return redirect('/welcome')
-
 
 @app.route('/users')
 def view_users():
@@ -311,19 +220,8 @@ def view_users():
     except Exception as e:
         return f"Ошибка чтения файла: {e}"
 
-
 if __name__ == '__main__':
-    # Создаем файл users.txt если его нет
     if not os.path.exists(USERS_FILE):
         with open(USERS_FILE, 'w', encoding='utf-8') as f:
             f.write("")
-
-    print("=" * 50)
-    print("🚀 Сервис регистрации и авторизации")
-    print("=" * 50)
-    print("📍 Главная страница: http://localhost:5000")
-    print("👥 Все пользователи: http://localhost:5000/users")
-    print("⚡ Быстрый вход: http://localhost:5000/quick-login")
-    print("=" * 50)
-
     app.run(debug=True, host='0.0.0.0', port=5000)
