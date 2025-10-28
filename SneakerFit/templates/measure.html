@@ -3,15 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <title>Измерение стопы</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container" style="animation: fadeIn 0.6s ease;">
-        <div class="card">
-            <h1>Измерение стопы 👣</h1>
-            <p>Здесь будет функционал 3D-сканирования.</p>
-            <a href="/welcome" class="btn btn-primary">⬅ Вернуться</a>
-        </div>
+<header class="topbar">
+    <div class="logo">SneakerFit</div>
+    <nav class="menu">
+        <button onclick="window.location='/'">Главная</button>
+        <button onclick="window.location='/profile'">Профиль</button>
+    </nav>
+</header>
+
+<div class="container" style="margin-top:140px; animation: fadeIn 0.5s ease;">
+    <div class="card">
+        <h1>Мои измерения</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label>Длина стопы (см):</label>
+                <input type="number" name="length" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>Ширина стопы (см):</label>
+                <input type="number" name="width" step="0.1">
+            </div>
+            <div class="form-group">
+                <label>Подъём:</label>
+                <select name="arch">
+                    <option value="Низкий">Низкий</option>
+                    <option value="Средний">Средний</option>
+                    <option value="Высокий">Высокий</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Доминирующая нога:</label>
+                <select name="dominant">
+                    <option value="Правая">Правая</option>
+                    <option value="Левая">Левая</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Тип стопы:</label>
+                <select name="foot_type">
+                    <option value="Нормальная">Нормальная</option>
+                    <option value="Плоскостопие">Плоскостопие</option>
+                    <option value="Супинация">Супинация</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Сохранить измерения</button>
+        </form>
+
+        <a href="/profile" class="btn btn-secondary" style="margin-top:12px; display:inline-block;">Отмена</a>
     </div>
+</div>
 </body>
 </html>

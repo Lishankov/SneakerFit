@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль — {{ user.username }}</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+    <div class="logo">SneakerFit</div>
+    <nav class="menu">
+        <button onclick="window.location='/'">Главная</button>
+        <button onclick="window.location='{{ url_for('measure') }}'">Измерить стопу</button>
+        <button onclick="window.location='{{ url_for('logout') }}'">Выйти</button>
+    </nav>
+</header>
+
+<div class="profile-page" style="animation: fadeIn 0.5s ease;">
+    <div class="profile-grid">
+        <aside class="profile-card">
+            <div class="avatar-wrap">
+                {% if user.avatar %}
+                    <img id="avatarPreview" src="/{{ user.avatar }}" alt="avatar">
+                {% else %}
+                    <img id="avatarPreview" src="{{ url_for('static', filename='no-avatar.png') }}" alt="avatar">
+                {% endif %}
+            </div>
+
+            <h2>{{ user.username }}</h2>
+            <button onclick="document.getElementById('nickEdit').style.display='block'" class="btn btn-secondary" style="margin-top:6px;">✏️ Изменить ник</button>
+            <div id="nickEdit" style="display:none; margin-top:10px;">
+                <form action="{{ url_for('nickname_update') }}" method="POST">
+                    <input type="text" name="new_nickname" placeholder="Новый ник" minlength="3">
+                    <button type="submit" class="btn btn-primary" style="margin-top:6px;">Сохранить</button>
+                </form>
+            </div>
+
+            <p class="email">{{ user.email }}</p>
+
+            <form id="avatarForm" action="{{ url_for('profile_update') }}" method="POST" enctype="multipart/form-data">
+                <label class="fake-file">
+                    Загрузить аватар
+                    <input id="avatarInput" type="file" name="avatar" accept="image/*">
+                </label>
+
+                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:12px;">Сохранить аватар / О себе</button>
+            </form>
+
+            <p class="registered">Дата регистрации: <br> <strong>{{ user.registration_date }}</strong></p>
+        </aside>
+
+        <main class="profile-main">
+            <p style="margin-bottom:8px; color:#555;">{{ user.about or "Пока ничего не написано..." }}</p>
+            <section class="about">
+                <h3>О себе</h3>
+                <form id="aboutForm" action="{{ url_for('profile_update') }}" method="POST">
+                    <textarea name="about" id="aboutTextarea" rows="6" placeholder="Напишите о себе...">{{ user.about }}</textarea>
+                    <div style="display:flex; gap:12px; margin-top:10px;">
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <a href="{{ url_for('measure') }}" class="btn btn-secondary">Обновить измерения</a>
+                    </div>
+                </form>
+            </section>
+
+            <section class="measurements" style="margin-top:18px;">
+                <h3>Мои измерения</h3>
+                <div class="measure-row">
+                    <div><strong>Длина:</strong> {{ user.foot_length or '-' }} см</div>
+                    <div><strong>Ширина:</strong> {{ user.foot_width or '-' }} см</div>
+                    <div><strong>Подъём:</strong> {{ user.arch or '-' }}</div>
+                    <div><strong>Нога:</strong> {{ user.dominant or '-' }}</div>
+                    <div><strong>Тип:</strong> {{ user.foot_type or '-' }}</div>
+                </div>
+            </section>
+
+            <section class="recommendations" style="margin-top:26px;">
+                <h3>Рекомендации</h3>
+                <div class="rec-grid">
+                    <div class="rec-card">
+                        <div class="rec-title">Nike ZoomX</div>
+                        <button class="btn btn-secondary">Подробнее</button>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-title">Adidas Ultraboost</div>
+                        <button class="btn btn-secondary">Подробнее</button>
+                    </div>
+                    <div class="rec-card">
+                        <div class="rec-title">Asics ComfortFit</div>
+                        <button class="btn btn-secondary">Подробнее</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

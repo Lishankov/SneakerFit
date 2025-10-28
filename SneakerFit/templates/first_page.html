@@ -3,30 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <title>SneakerFit — Точная 3D-модель стопы</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
 </head>
 <body>
     <header class="topbar">
         <div class="logo">SneakerFit</div>
         <nav class="menu">
-            <button class="measure-btn" onclick="window.location='/measure'">Измерить стопу</button>
-            <button class="profile-btn" onclick="window.location='/profile'">Профиль</button>
+            <button class="measure-btn" onclick="window.location.href='{{ url_for('measure') }}'">Измерить стопу</button>
+            <button class="profile-btn" onclick="window.location.href='{{ url_for('profile') }}'">Профиль</button>
         </nav>
     </header>
 
     <main class="hero">
         <section class="text-block">
-            <h1>Точная 3D‑модель вашей стопы</h1>
-            <p>Мы специализируемся на подборе обуви для сложных случаев: высокий подъём, плоскостопие,
-                широкий или узкий тип стопы. Наши 3D‑модели стопы улучшают комфорт в каждой паре.</p>
+            <h1>Точная 3D-модель вашей стопы</h1>
+            <p>Мы специализируемся на подборе обуви для сложных случаев: высокий подъём, плоскостопие, широкий или узкий тип стопы.</p>
             <div class="actions">
-                <button class="primary" onclick="window.location='/measure'">Начать измерение</button>
+                <button class="primary" onclick="window.location.href='{{ url_for('measure') }}'">Начать измерение</button>
             </div>
         </section>
 
         <section class="preview-block">
-            <div class="foot-view">3D‑модель стопы</div>
+            <div class="foot-view">3D-модель стопы</div>
         </section>
     </main>
 </body>

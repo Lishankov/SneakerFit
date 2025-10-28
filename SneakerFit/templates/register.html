@@ -70,18 +70,20 @@
             </div>
 
             <div class="quick-actions">
+                <a href="{{ url_for('quick_login') }}" class="btn btn-demo">
+                    🚀 Быстрый демо-вход
+                </a>
                 <small>Попробуйте без регистрации</small>
             </div>
 
             <div id="message" class="message"></div>
 
             <div class="footer">
-                <small>
-                    <a href="/users">📊 Посмотреть всех пользователей</a>
-                </small>
+                <small><a href="/users">📊 Посмотреть всех пользователей</a></small>
             </div>
         </div>
     </div>
-<script src="../static/js/script.js"></script>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
