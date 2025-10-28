@@ -7,12 +7,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
+<div class="main-content">
 <header class="topbar">
     <div class="logo">SneakerFit</div>
     <nav class="menu">
         <button onclick="window.location='/'">Главная</button>
         <button onclick="window.location='{{ url_for('measure') }}'">Измерить стопу</button>
         <button onclick="window.location='{{ url_for('logout') }}'">Выйти</button>
+        <a href="/about"><button>О нас</button></a>
     </nav>
 </header>
 
@@ -94,7 +96,10 @@
         </main>
     </div>
 </div>
-
+<div class="main-content">
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<footer class="global-footer">
+    <p>by SneakerFit team © 2025</p>
+</footer>
 </body>
 </html>

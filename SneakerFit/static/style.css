@@ -1,9 +1,7 @@
-/* ========== Базовые общие стили ========== */
 * { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
 html,body { height:100%; }
 body { min-height:100vh; background: #f6f7fb; color:#222; }
 
-/* Topbar */
 .topbar {
   width:100%; position:fixed; top:0; left:0; display:flex; justify-content:space-between; align-items:center;
   padding:18px 36px; background: rgba(255,255,255,0.9); backdrop-filter: blur(4px); box-shadow:0 6px 22px rgba(13,13,25,0.05);
@@ -11,7 +9,6 @@ body { min-height:100vh; background: #f6f7fb; color:#222; }
 }
 .logo { font-size:28px; color:#000DFF; font-weight:700; }
 
-/* menu buttons */
 .menu button {
     margin-left:12px;
     padding:9px 16px;
@@ -28,23 +25,19 @@ body { min-height:100vh; background: #f6f7fb; color:#222; }
     box-shadow:0 10px 24px rgba(0,0,0,0.12);
 }
 
-/* ========== Hero / First page ========== */
 .hero { margin-top:120px; display:flex; gap:32px; justify-content:space-between; align-items:center; padding:48px; max-width:1200px; margin-left:auto; margin-right:auto; }
 .text-block { width:60%; animation: fadeIn 0.6s ease; }
 .text-block h1 { font-size:40px; margin-bottom:14px; line-height:1.05; }
 .text-block p { color:#556; font-size:18px; margin-bottom:20px; }
 .actions .primary { background:#0014ff; color:#fff; padding:14px 18px; border-radius:12px; border:none; cursor:pointer; box-shadow:0 6px 18px rgba(13,13,255,0.08); }
 
-/* foot preview */
 .preview-block { width:35%; display:flex; justify-content:center; }
 .foot-view { width:320px; height:320px; background:#fff; border-radius:14px; display:flex; justify-content:center; align-items:center; box-shadow:0 12px 40px rgba(13,13,25,0.06); animation: fadeUp 0.7s ease; }
 
-/* ========== Forms / cards ========= */
 .container { width:100%; max-width:980px; margin:120px auto 60px; padding:0 18px; }
 .card { background:white; border-radius:14px; padding:28px; box-shadow: 0 18px 45px rgba(13,13,25,0.05); }
 h1 { font-size:28px; margin-bottom:8px; }
 
-/* Form elements */
 .form-group { margin-bottom:14px; text-align:left; }
 label { display:block; font-weight:600; margin-bottom:8px; color:#333; }
 input[type="text"], input[type="email"], input[type="password"], input[type="number"], textarea, select {
@@ -52,7 +45,6 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 }
 input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px rgba(66,133,244,0.06); border-color:#4285f4; }
 
-/* Buttons */
 .btn { display:inline-block; padding:12px 18px; border-radius:10px; text-decoration:none; text-align:center; cursor:pointer; border:none; }
 .btn-primary {
     background: linear-gradient(135deg,#0014ff,#0010aa);
@@ -81,15 +73,12 @@ input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px
     color:white;
 }
 
-/* spinner */
 .spinner { width:18px; height:18px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite; display:inline-block; vertical-align:middle; }
 
-/* divider */
 .divider { display:flex; align-items:center; margin:20px 0; }
 .divider::before, .divider::after { content:''; flex:1; height:1px; background:#eee; }
 .divider span { padding:0 12px; color:#888; background:white; }
 
-/* ========== Profile ========== */
 .profile-page { padding:36px; margin-top:88px; max-width:1400px; margin-left:auto; margin-right:auto; }
 .profile-grid { display:grid; grid-template-columns: 320px 1fr; gap:28px; align-items:start; }
 .profile-card { background:white; border-radius:14px; padding:20px; box-shadow:0 12px 30px rgba(9,9,25,0.05); text-align:center; min-height:300px; animation: fadeRight 0.5s ease; }
@@ -97,13 +86,11 @@ input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px
 .avatar-wrap { width:180px; height:180px; margin:10px auto 12px; border-radius:50%; overflow:hidden; background:#f0f2f5; display:flex; align-items:center; justify-content:center; }
 .avatar-wrap img { width:100%; height:100%; object-fit:cover; display:block; }
 
-/* fake file input */
 .fake-file { display:inline-block; padding:10px 14px; border-radius:10px; background:#f7f8fb; border:1px dashed #ddd; cursor:pointer; margin-top:10px; }
 .fake-file input { display:none; }
 
 .registered { color:#666; font-size:13px; margin-top:14px; }
 
-/* profile main panel */
 .profile-main { background:white; border-radius:14px; padding:20px; box-shadow:0 12px 30px rgba(9,9,25,0.05); animation: fadeLeft 0.5s ease; }
 .about textarea { width:100%; resize:vertical; padding:12px; border-radius:10px; border:1px solid #e8e8e8; font-size:15px; }
 
@@ -113,7 +100,6 @@ input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px
 .rec-card { background:#f7f8fb; padding:14px; border-radius:10px; width:200px; display:flex; flex-direction:column; gap:10px; align-items:center; transition:all .2s; }
 .rec-card:hover { transform:translateY(-4px); box-shadow:0 14px 32px rgba(0,0,0,0.08); }
 
-/* small screens */
 @media (max-width:900px) {
   .profile-grid { grid-template-columns: 1fr; }
   .hero { flex-direction:column; gap:20px; padding:24px; }
@@ -122,7 +108,6 @@ input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px
   .container { margin-top:220px; }
 }
 
-/* ========== Animations ========== */
 @keyframes fadeIn { from { opacity:0; transform: translateY(8px);} to { opacity:1; transform: translateY(0);} }
 @keyframes fadeUp { from { opacity:0; transform: translateY(20px);} to { opacity:1; transform: translateY(0);} }
 @keyframes fadeDown { from { opacity:0; transform: translateY(-14px);} to { opacity:1; transform: translateY(0);} }
@@ -130,9 +115,42 @@ input:focus, textarea:focus, select:focus { outline:none; box-shadow:0 10px 30px
 @keyframes fadeRight { from { opacity:0; transform: translateX(14px);} to { opacity:1; transform: translateX(0);} }
 @keyframes spin { from { transform: rotate(0);} to { transform: rotate(360deg);} }
 
-/* generic hover */
 .btn:hover {
     transform: translateY(-3px);
     transition: all .20s ease;
     box-shadow:0 12px 27px rgba(0,0,0,0.08);
+}
+
+.global-footer {
+    width: 100%;
+    text-align: center;
+    padding: 16px;
+    font-size: 14px;
+    color: #777;
+    background: #f2f3f8;
+    margin-top: 60px;
+    animation: fadeUp 0.4s ease;
+    border-top: 1px solid #e6e6e6;
+}
+
+.global-footer p {
+    opacity: 0.8;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+
+footer {
+    margin-top: auto;
+}
+.main-content {
+    flex: 1;
 }

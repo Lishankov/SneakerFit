@@ -12,10 +12,6 @@ USERS_FILE = 'users.txt'
 AVATARS_DIR = os.path.join('static', 'avatars')
 ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif'}
 
-
-# -------------------------
-# Utilities: users handling
-# -------------------------
 def ensure_storage():
     if not os.path.exists(USERS_FILE):
         with open(USERS_FILE, 'w', encoding='utf-8') as f:
@@ -36,7 +32,6 @@ def load_users():
     with open(USERS_FILE, 'r', encoding='utf-8') as f:
         for line in f:
             parts = line.rstrip('\n').split(' | ')
-            # Ensure at least 12 fields (pad if older lines)
             while len(parts) < 12:
                 parts.append('')
             users.append(parts)
@@ -78,16 +73,15 @@ def get_user_by_email(email):
 
 def save_user(user_data):
     users = load_users()
-    # append with placeholders for measurement/avatar/about
     users.append([
         user_data.get('username', ''),
         user_data.get('email', ''),
         user_data.get('password', ''),
         user_data.get('registration_date', ''),
         user_data.get('registration_type', 'form'),
-        '', '', '', '', '',  # 5..9 measurement fields
-        '',  # avatar (index 10)
-        ''   # about (index 11)
+        '', '', '', '', '',
+        '',
+        ''
     ])
     save_users(users)
     return True
@@ -109,25 +103,18 @@ def update_user_measurements(email, data):
 
 
 def update_user_profile(email, about=None, avatar_path=None):
-    """
-    If avatar_path provided: set path and delete previous avatar file (if exists and inside avatars dir).
-    """
     users = load_users()
     for u in users:
         if u[1] == email:
-            # avatar deletion: if new avatar uploaded, remove old file
             old_avatar = u[10]
             if avatar_path:
-                # remove old avatar file if exists and path is inside avatars dir
                 if old_avatar:
-                    old_path = os.path.join(old_avatar.replace('/', os.sep))  # convert to path
-                    # old_path may be like static/avatars/xxx.png
+                    old_path = os.path.join(old_avatar.replace('/', os.sep))
                     if os.path.exists(old_path) and os.path.commonpath([os.path.abspath(old_path), os.path.abspath(AVATARS_DIR)]) == os.path.abspath(AVATARS_DIR):
                         try:
                             os.remove(old_path)
                         except Exception:
                             pass
-                # set new avatar path (web path)
                 u[10] = avatar_path
             if about is not None:
                 u[11] = about
@@ -140,7 +127,6 @@ def setup():
 setup()
 
 
-
 @app.route('/')
 def first():
     return render_template('first_page.html')
@@ -148,7 +134,6 @@ def first():
 
 @app.route('/loggin')
 def index():
-    # login/register page
     if session.get('user_logged_in'):
         return redirect('/welcome')
     return render_template('register.html')
@@ -156,7 +141,6 @@ def index():
 
 @app.route('/quick_login')
 def quick_login():
-    # demo quick login (creates demo user if not exists)
     demo_email = 'demo@example.com'
     if not user_exists(demo_email):
         save_user({
@@ -251,13 +235,11 @@ def profile():
 
 @app.route('/profile_update', methods=['POST'])
 def profile_update():
-    # update about text and optionally avatar upload
     if not session.get('user_logged_in'):
         return redirect('/loggin')
     email = session.get('user_email')
     about = request.form.get('about', '').strip()
 
-    # handle avatar file
     file = request.files.get('avatar')
     avatar_web_path = None
     if file and file.filename:
@@ -267,14 +249,12 @@ def profile_update():
             return "Неподдерживаемый формат изображения", 400
 
         ensure_storage()
-        # generate unique filename
         unique = datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')
         new_name = f"{session.get('user_email').split('@')[0]}_{unique}.{ext}"
         save_path = os.path.join(AVATARS_DIR, new_name)
         file.save(save_path)
         avatar_web_path = os.path.join('static', 'avatars', new_name).replace('\\', '/')
 
-    # update
     update_user_profile(email, about=about if about != '' else '', avatar_path=avatar_web_path)
     return redirect('/profile')
 
@@ -286,17 +266,14 @@ def nickname_update():
     new_name = request.form.get('new_nickname', '').strip()
     email = session.get('user_email')
 
-    # проверки
     if len(new_name) < 3:
         return "Имя слишком короткое"
 
     users = load_users()
-    # проверка уникальности
     for u in users:
         if u[0] == new_name:
             return "Такой ник уже существует"
 
-    # обновление
     for u in users:
         if u[1] == email:
             u[0] = new_name
@@ -331,16 +308,12 @@ def measure():
     return render_template('measure.html')
 
 
-# -------------------------
-# Admin-ish: view users (keeps previous simple table)
-# -------------------------
 @app.route('/users')
 def view_users():
     if not os.path.exists(USERS_FILE):
         return "Пользователей пока нет"
 
     users = load_users()
-    # generate simple html table
     html = """
     <!doctype html><html><head><meta charset="utf-8"><title>Users</title></head><body>
     <h1>Пользователи</h1>
@@ -354,6 +327,10 @@ def view_users():
         html += "</tr>"
     html += "</table><br><a href='/'>← На главную</a></body></html>"
     return html
+
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 
 if __name__ == '__main__':
