@@ -4,6 +4,203 @@ import os
 import re
 from werkzeug.utils import secure_filename
 import shutil
+import json
+import math
+
+
+# Загрузка базы обуви
+def load_shoes_database():
+    try:
+        with open('base_of_shoes.json', 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except:
+        return {"sneakers": []}
+
+
+# Расчет совместимости
+def calculate_compatibility(user_data, shoe_size):
+    compatibility = 0
+    factors = 0
+
+    # Проверяем наличие необходимых данных
+    has_length = user_data.get('foot_length') and user_data['foot_length'].strip()
+    has_width = user_data.get('foot_width') and user_data['foot_width'].strip()
+    has_arch = user_data.get('arch') and user_data['arch'].strip()
+    has_foot_type = user_data.get('foot_type') and user_data['foot_type'].strip()
+
+    # 1. ДЛИНА СТОПЫ (самый важный параметр - 45%)
+    if has_length:
+        try:
+            user_length = float(user_data['foot_length']) * 10  # переводим в мм
+            shoe_length = shoe_size['length']
+            length_diff = abs(user_length - shoe_length)
+
+            # Более мягкая система оценки длины
+            if length_diff <= 3:  # Идеально
+                length_score = 45
+            elif length_diff <= 7:  # Очень хорошо
+                length_score = 40
+            elif length_diff <= 12:  # Хорошо
+                length_score = 35
+            elif length_diff <= 17:  # Удовлетворительно
+                length_score = 25
+            elif length_diff <= 22:  # Минимально приемлемо
+                length_score = 15
+            else:  # Слишком большая разница
+                length_score = 5
+
+            compatibility += length_score
+            factors += 45
+
+        except ValueError:
+            print("Ошибка преобразования длины")
+
+    # 2. ШИРИНА СТОПЫ (важный параметр - 35%)
+    if has_width:
+        try:
+            user_width = float(user_data['foot_width']) * 10  # переводим в мм
+
+            # Более точное преобразование ширины в окружность
+            # Окружность = 2 * (ширина + высота) * коэффициент
+            # Для средней стопы принимаем высоту ~50мм
+            estimated_midfoot = 2 * (user_width + 50) * 0.9
+            shoe_midfoot = shoe_size['midfootCircumference']
+            width_diff = abs(estimated_midfoot - shoe_midfoot)
+
+            # Мягкая оценка ширины
+            if width_diff <= 15:  # Идеально
+                width_score = 35
+            elif width_diff <= 25:  # Очень хорошо
+                width_score = 30
+            elif width_diff <= 35:  # Хорошо
+                width_score = 25
+            elif width_diff <= 45:  # Удовлетворительно
+                width_score = 18
+            elif width_diff <= 55:  # Минимально приемлемо
+                width_score = 10
+            else:  # Слишком большая разница
+                width_score = 5
+
+            compatibility += width_score
+            factors += 35
+
+        except ValueError:
+            print("Ошибка преобразования ширины")
+
+    # 3. ВЫСОТА ПОДЪЕМА (второстепенный параметр - 15%)
+    if has_arch:
+        arch_height = shoe_size['instepHeight']
+        user_arch = user_data['arch']
+
+        # Более гибкие диапазоны для разных типов подъема
+        if user_arch == 'Низкий':
+            ideal_min, ideal_max = 260, 290  # мм
+        elif user_arch == 'Высокий':
+            ideal_min, ideal_max = 310, 350  # мм
+        else:  # Средний
+            ideal_min, ideal_max = 285, 320  # мм
+
+        # Оценка на основе попадания в диапазон
+        if ideal_min <= arch_height <= ideal_max:
+            arch_score = 15  # Идеально
+        elif arch_height >= ideal_min - 20 and arch_height <= ideal_max + 20:
+            arch_score = 12  # Хорошо
+        elif arch_height >= ideal_min - 40 and arch_height <= ideal_max + 40:
+            arch_score = 8  # Удовлетворительно
+        else:
+            arch_score = 3  # Плохо
+
+        compatibility += arch_score
+        factors += 15
+
+    # 4. ТИП СТОПЫ (дополнительный параметр - 5%)
+    if has_foot_type:
+        foot_type = user_data['foot_type']
+
+        if foot_type == 'Плоскостопие':
+            # Для плоскостопия важна поддержка и стабильность
+            ankle_circ = shoe_size['ankleCircumference']
+            midfoot_circ = shoe_size['midfootCircumference']
+
+            # Высокая оценка для обуви с хорошей поддержкой
+            if ankle_circ > 240 and midfoot_circ > 220:
+                foot_type_score = 5
+            elif ankle_circ > 230 and midfoot_circ > 210:
+                foot_type_score = 3
+            else:
+                foot_type_score = 1
+
+        elif foot_type == 'Супинация':
+            # Для супинации важна амортизация и ширина в передней части
+            toe_circ = shoe_size['toeCircumference']
+
+            if toe_circ > 240:
+                foot_type_score = 5
+            elif toe_circ > 220:
+                foot_type_score = 3
+            else:
+                foot_type_score = 1
+
+        else:  # Нормальная
+            # Нормальная стопа хорошо адаптируется
+            foot_type_score = 4
+
+        compatibility += foot_type_score
+        factors += 5
+
+    # Нормализуем до 100%
+    if factors > 0:
+        final_compatibility = min(100, int(compatibility * 100 / factors))
+    else:
+        final_compatibility = 0
+
+    # Дополнительный бонус за идеальное совпадение по длине
+    if has_length:
+        user_length = float(user_data['foot_length']) * 10
+        shoe_length = shoe_size['length']
+        if abs(user_length - shoe_length) <= 2:  # Почти идеальное совпадение
+            final_compatibility = min(100, final_compatibility + 5)
+
+    return final_compatibility
+
+
+# Поиск лучших совпадений
+def find_best_matches(user_email):
+    user = get_user_by_email(user_email)
+    if not user:
+        return []
+
+    shoes_db = load_shoes_database()
+    recommendations = []
+
+    for shoe in shoes_db['sneakers']:
+        best_compatibility = 0
+        best_size = None
+
+        for size in shoe['sizes']:
+            compatibility = calculate_compatibility({
+                'foot_length': user.get('foot_length'),
+                'foot_width': user.get('foot_width'),
+                'arch': user.get('arch'),
+                'foot_type': user.get('foot_type')
+            }, size)
+
+            if compatibility > best_compatibility:
+                best_compatibility = compatibility
+                best_size = size
+
+        # ПОНИЖАЕМ ПОРОГ ДО 30% вместо 50%
+        if best_compatibility >= 30:  # Теперь показываем больше вариантов
+            recommendations.append({
+                'model': shoe['model'],
+                'compatibility': best_compatibility,
+                'best_size': best_size,
+                'all_sizes': shoe['sizes']
+            })
+
+    # Сортируем по совместимости
+    recommendations.sort(key=lambda x: x['compatibility'], reverse=True)
+    return recommendations[:8]  # Возвращаем топ-8 вместо топ-6
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-123456789'
@@ -51,6 +248,51 @@ def user_exists(email):
     return False
 
 
+def find_best_matches(user_email):
+    user = get_user_by_email(user_email)
+    if not user:
+        print(f"Пользователь с email {user_email} не найден")
+        return []
+
+    print(f"Данные пользователя: {user}")
+    print(f"Длина стопы: {user.get('foot_length')}")
+    print(f"Ширина стопы: {user.get('foot_width')}")
+    print(f"Подъем: {user.get('arch')}")
+    print(f"Тип стопы: {user.get('foot_type')}")
+
+    shoes_db = load_shoes_database()
+    recommendations = []
+
+    for shoe in shoes_db['sneakers']:
+        best_compatibility = 0
+        best_size = None
+
+        for size in shoe['sizes']:
+            compatibility = calculate_compatibility({
+                'foot_length': user.get('foot_length'),
+                'foot_width': user.get('foot_width'),
+                'arch': user.get('arch'),
+                'foot_type': user.get('foot_type')
+            }, size)
+
+            if compatibility > best_compatibility:
+                best_compatibility = compatibility
+                best_size = size
+
+        print(f"Модель: {shoe['model']}, Совместимость: {best_compatibility}")
+
+        if best_compatibility > 50:  # Минимальный порог совместимости
+            recommendations.append({
+                'model': shoe['model'],
+                'compatibility': best_compatibility,
+                'best_size': best_size,
+                'all_sizes': shoe['sizes']
+            })
+
+    # Сортируем по совместимости
+    recommendations.sort(key=lambda x: x['compatibility'], reverse=True)
+    return recommendations[:6]
+
 def get_user_by_email(email):
     for u in load_users():
         if u[1] == email:
@@ -92,14 +334,16 @@ def update_user_measurements(email, data):
     changed = False
     for u in users:
         if u[1] == email:
-            u[5] = data.get('length', '') or ''
-            u[6] = data.get('width', '') or ''
-            u[7] = data.get('arch', '') or ''
-            u[8] = data.get('dominant', '') or ''
-            u[9] = data.get('foot_type', '') or ''
+            # Очищаем и валидируем данные
+            u[5] = data.get('length', '').strip() or ''
+            u[6] = data.get('width', '').strip() or ''
+            u[7] = data.get('arch', '').strip() or ''
+            u[8] = data.get('dominant', '').strip() or ''
+            u[9] = data.get('foot_type', '').strip() or ''
             changed = True
     if changed:
         save_users(users)
+        print(f"Обновлены измерения для {email}: длина={data.get('length')}, ширина={data.get('width')}")
 
 
 def update_user_profile(email, about=None, avatar_path=None):
@@ -126,6 +370,56 @@ def setup():
 
 setup()
 
+
+@app.route('/shoe/<model_name>')
+def shoe_detail(model_name):
+    if not session.get('user_logged_in'):
+        return redirect('/loggin')
+
+    shoes_db = load_shoes_database()
+    user = get_user_by_email(session.get('user_email'))
+
+    # Находим обувь
+    shoe_data = None
+    for shoe in shoes_db['sneakers']:
+        if shoe['model'] == model_name:
+            shoe_data = shoe
+            break
+
+    if not shoe_data:
+        return "Модель не найдена", 404
+
+    # Рассчитываем совместимость для всех размеров
+    size_compatibilities = []
+    for size in shoe_data['sizes']:
+        compatibility = calculate_compatibility({
+            'foot_length': user['foot_length'],
+            'foot_width': user['foot_width'],
+            'arch': user['arch'],
+            'foot_type': user['foot_type']
+        }, size)
+
+        size_compatibilities.append({
+            'size_data': size,
+            'compatibility': compatibility
+        })
+
+    # Сортируем размеры по совместимости
+    size_compatibilities.sort(key=lambda x: x['compatibility'], reverse=True)
+
+    return render_template('shoe_detail.html',
+                           shoe=shoe_data,
+                           sizes=size_compatibilities,
+                           user=user)
+
+
+@app.route('/get_recommendations')
+def get_recommendations():
+    if not session.get('user_logged_in'):
+        return jsonify({'error': 'Not logged in'})
+
+    recommendations = find_best_matches(session.get('user_email'))
+    return jsonify(recommendations)
 
 @app.route('/')
 def first():
@@ -289,12 +583,54 @@ def measure():
     if not session.get('user_logged_in'):
         return redirect('/loggin')
 
+    # Получаем текущие измерения пользователя
+    user = get_user_by_email(session.get('user_email'))
+    user_measurements = {
+        'foot_length': user.get('foot_length', ''),
+        'foot_width': user.get('foot_width', ''),
+        'arch': user.get('arch', ''),
+        'dominant': user.get('dominant', ''),
+        'foot_type': user.get('foot_type', '')
+    }
+
     if request.method == 'POST':
         length = request.form.get('length', '').strip()
         width = request.form.get('width', '').strip()
         arch = request.form.get('arch', '').strip()
         dominant = request.form.get('dominant', '').strip()
         foot_type = request.form.get('foot_type', '').strip()
+
+        # Валидация на сервере
+        errors = []
+
+        try:
+            length_float = float(length)
+            if length_float < 15 or length_float > 40:
+                errors.append("Длина стопы должна быть от 15 до 40 см")
+        except (ValueError, TypeError):
+            errors.append("Некорректное значение длины стопы")
+
+        try:
+            width_float = float(width)
+            if width_float < 5 or width_float > 15:
+                errors.append("Ширина стопы должна быть от 5 до 15 см")
+        except (ValueError, TypeError):
+            errors.append("Некорректное значение ширины стопы")
+
+        if not arch:
+            errors.append("Выберите тип подъема")
+
+        if not dominant:
+            errors.append("Выберите доминирующую ногу")
+
+        if not foot_type:
+            errors.append("Выберите тип стопы")
+
+        if errors:
+            # Если есть ошибки, показываем форму снова с сообщениями
+            return render_template('measure.html',
+                                   user_measurements=user_measurements,
+                                   errors=errors)
 
         update_user_measurements(session.get('user_email'), {
             'length': length,
@@ -305,7 +641,8 @@ def measure():
         })
         return redirect('/profile')
 
-    return render_template('measure.html')
+    return render_template('measure.html',
+                           user_measurements=user_measurements, errors=[])
 
 
 @app.route('/users')

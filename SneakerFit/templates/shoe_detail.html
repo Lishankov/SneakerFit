@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ shoe.model }} — SneakerFit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .compatibility-bar {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 20px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .compatibility-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .size-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .size-table th, .size-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .size-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .size-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .best-match {
+            background: #e8f5e8 !important;
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="logo">SneakerFit</div>
+
+    <div class="center-menu">
+        <a href="/how"><button class="ghost-btn">Как это работает</button></a>
+        <a href="/fit"><button class="ghost-btn">Подбор</button></a>
+        <a href="/about"><button class="ghost-btn">О нас</button></a>
+    </div>
+
+    <div class="right-menu">
+        <a href="/measure"><button class="nav-btn">Измерить стопу</button></a>
+        <a href="/profile"><button class="nav-btn">Профиль</button></a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="container">
+        <div class="card" style="animation: fadeIn 0.4s">
+            <a href="/fit" style="text-decoration: none; color: #0014ff; margin-bottom: 20px; display: inline-block;">← Назад к подбору</a>
+
+            <h1 style="text-align:center">{{ shoe.model }}</h1>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <img src="https://via.placeholder.com/300x250/4285f4/ffffff?text={{ shoe.model | urlencode }}"
+                     style="border-radius: 10px; max-width: 100%;">
+            </div>
+
+            <h2>Совместимость размеров</h2>
+            <p>На основе ваших данных:
+                {% if user.foot_length %}Длина: {{ user.foot_length }} см{% endif %}
+                {% if user.foot_width %}, Ширина: {{ user.foot_width }} см{% endif %}
+                {% if user.arch %}, Подъём: {{ user.arch }}{% endif %}
+                {% if user.foot_type %}, Тип стопы: {{ user.foot_type }}{% endif %}
+            </p>
+
+            <table class="size-table">
+                <thead>
+                    <tr>
+                        <th>Размер (EU)</th>
+                        <th>Длина (мм)</th>
+                        <th>Окружность носка (мм)</th>
+                        <th>Окружность середины (мм)</th>
+                        <th>Окружность щиколотки (мм)</th>
+                        <th>Высота подъема (мм)</th>
+                        <th>Совместимость</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in sizes %}
+                    <tr class="{% if loop.first %}best-match{% endif %}">
+                        <td><strong>{{ item.size_data.eu }}</strong></td>
+                        <td>{{ item.size_data.length }}</td>
+                        <td>{{ item.size_data.toeCircumference }}</td>
+                        <td>{{ item.size_data.midfootCircumference }}</td>
+                        <td>{{ item.size_data.ankleCircumference }}</td>
+                        <td>{{ item.size_data.instepHeight }}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span><strong>{{ item.compatibility }}%</strong></span>
+                                <div class="compatibility-bar" style="flex-grow: 1;">
+                                    <div class="compatibility-fill" style="width: {{ item.compatibility }}%;"></div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <div style="background: #e8f5e8; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                <h3>🎯 Рекомендуемый размер: EU {{ sizes[0].size_data.eu }}</h3>
+                <p>Совместимость: <strong>{{ sizes[0].compatibility }}%</strong></p>
+                <p>Этот размер обеспечивает наилучшее соответствие вашим параметрам стопы.</p>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px;">
+                <h3>Где купить?</h3>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+                    <a href="https://poizon.ru/search?q={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Poizon</a>
+                    <a href="https://www.ozon.ru/search/?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">OZON</a>
+                    <a href="https://aliexpress.ru/wholesale?SearchText={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">AliExpress</a>
+                    <a href="https://market.yandex.ru/search?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Яндекс.Маркет</a>
+                    <a href="https://www.wildberries.ru/catalog/0/search.aspx?search={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Wildberries</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="global-footer">by SneakerFit team © 2025</footer>
+</body>
+</html>

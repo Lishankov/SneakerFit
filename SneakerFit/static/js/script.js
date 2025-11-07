@@ -100,5 +100,3 @@ if (avatarInput) {
     });
 }
 
-// About form: nothing special — regular POST to /profile_update (handled by backend).
-// AvatarForm uses same /profile_update endpoint (multipart/form-data).
