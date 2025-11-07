@@ -1,4 +1,3 @@
-// Tabs (register/login)
 document.querySelectorAll('.tab-button').forEach(button => {
     button.addEventListener('click', () => {
         document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
@@ -9,7 +8,6 @@ document.querySelectorAll('.tab-button').forEach(button => {
     });
 });
 
-// Register form
 const registerForm = document.getElementById('registerForm');
 if (registerForm) {
     registerForm.addEventListener('submit', async function(e) {
@@ -47,7 +45,6 @@ if (registerForm) {
     });
 }
 
-// Login form
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', async function(e) {
@@ -85,7 +82,6 @@ if (loginForm) {
     });
 }
 
-// Avatar preview logic (profile page)
 const avatarInput = document.getElementById('avatarInput');
 if (avatarInput) {
     avatarInput.addEventListener('change', evt => {

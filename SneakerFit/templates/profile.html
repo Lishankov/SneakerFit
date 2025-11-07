@@ -93,7 +93,6 @@
             </section>
 
             <script>
-            // Загрузка рекомендаций для профиля
             async function loadProfileRecommendations() {
                 try {
                     const response = await fetch('/get_recommendations');
@@ -113,7 +112,6 @@
 
                     let html = '<div class="rec-grid">';
 
-                    // Берем только первые 3 рекомендации для профиля
                     recommendations.slice(0, 3).forEach(rec => {
                         html += `
                             <div class="rec-card">

@@ -108,11 +108,9 @@
 </div>
 
 <script>
-// Валидация формы
 function validateForm() {
     let isValid = true;
 
-    // Валидация длины
     const lengthInput = document.getElementById('length');
     const lengthError = document.getElementById('lengthError');
     if (!lengthInput.value || lengthInput.value < 15 || lengthInput.value > 40) {
@@ -122,7 +120,6 @@ function validateForm() {
         lengthError.style.display = 'none';
     }
 
-    // Валидация ширины
     const widthInput = document.getElementById('width');
     const widthError = document.getElementById('widthError');
     if (!widthInput.value || widthInput.value < 5 || widthInput.value > 15) {
@@ -132,7 +129,6 @@ function validateForm() {
         widthError.style.display = 'none';
     }
 
-    // Валидация выпадающих списков
     const archSelect = document.getElementById('arch');
     const archError = document.getElementById('archError');
     if (!archSelect.value) {
@@ -163,7 +159,6 @@ function validateForm() {
     return isValid;
 }
 
-// Валидация в реальном времени
 document.addEventListener('DOMContentLoaded', function() {
     const lengthInput = document.getElementById('length');
     const widthInput = document.getElementById('width');
@@ -186,7 +181,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Предотвращение ввода отрицательных чисел
     const numberInputs = document.querySelectorAll('input[type="number"]');
     numberInputs.forEach(input => {
         input.addEventListener('keydown', function(e) {

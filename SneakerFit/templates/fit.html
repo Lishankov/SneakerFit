@@ -31,7 +31,6 @@
             </p>
 
             <div id="recommendations-container">
-                <!-- Рекомендации будут загружены через JavaScript -->
                 <div style="text-align: center; padding: 40px;">
                     <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
                     <p style="margin-top: 20px;">Загружаем рекомендации...</p>
@@ -42,7 +41,6 @@
 </div>
 
 <script>
-// Загрузка рекомендаций
 async function loadRecommendations() {
     try {
         const response = await fetch('/get_recommendations');
@@ -73,7 +71,6 @@ async function loadRecommendations() {
         let html = '<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">';
 
         recommendations.forEach(rec => {
-            // Простое изображение на основе модели (можно улучшить)
             let imageUrl = "https://via.placeholder.com/175x150/4285f4/ffffff?text=" + encodeURIComponent(rec.model.split(' ')[0]);
 
             html += `
@@ -106,7 +103,6 @@ async function loadRecommendations() {
     }
 }
 
-// Загружаем рекомендации при загрузке страницы
 document.addEventListener('DOMContentLoaded', loadRecommendations);
 </script>
 
