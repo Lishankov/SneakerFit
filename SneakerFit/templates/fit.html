@@ -4,6 +4,72 @@
     <meta charset="UTF-8">
     <title>Подбор — SneakerFit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .shoe-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            text-align: center;
+            border: 1px solid #f0f0f0;
+        }
+
+        .shoe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .shoe-image {
+            width: 100%;
+            height: 200px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shoe-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .compatibility-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 8px 0;
+        }
+
+        .size-info {
+            color: #666;
+            font-size: 14px;
+            margin: 8px 0;
+        }
+
+        .shoe-model {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            color: #333;
+            line-height: 1.3;
+        }
+    </style>
 </head>
 <body>
 
@@ -41,6 +107,30 @@
 </div>
 
 <script>
+// Функция для получения URL первого изображения модели
+function getShoeImageUrl(modelName) {
+    return `/static/models%20photo/${encodeURIComponent(modelName)}/1.jpg`;
+}
+
+// Функция для проверки существования изображения
+function checkImageExists(url, callback) {
+    const img = new Image();
+    img.onload = function() {
+        callback(true);
+    };
+    img.onerror = function() {
+        callback(false);
+    };
+    img.src = url;
+}
+
+// Функция для получения цвета совместимости
+function getCompatibilityColor(percentage) {
+    if (percentage >= 80) return '#4CAF50';
+    if (percentage >= 60) return '#FF9800';
+    return '#F44336';
+}
+
 async function loadRecommendations() {
     try {
         const response = await fetch('/get_recommendations');
@@ -68,27 +158,41 @@ async function loadRecommendations() {
             return;
         }
 
-        let html = '<div style="display: flex; flex-wrap: wrap; gap: 30px; justify-content: center;">';
+        // Создаем HTML для каждой рекомендации
+        let html = '<div class="recommendations-grid">';
 
-        recommendations.forEach(rec => {
-            let imageUrl = "https://via.placeholder.com/175x150/4285f4/ffffff?text=" + encodeURIComponent(rec.model.split(' ')[0]);
+        for (const rec of recommendations) {
+            const imageUrl = getShoeImageUrl(rec.model);
+
+            // Проверяем существует ли изображение
+            const imageExists = await new Promise(resolve => {
+                checkImageExists(imageUrl, resolve);
+            });
+
+            const finalImageUrl = imageExists ? imageUrl :
+                "https://via.placeholder.com/250x200/4285f4/ffffff?text=" + encodeURIComponent(rec.model.split(' ')[0]);
+
+            const compatibilityColor = getCompatibilityColor(rec.compatibility);
 
             html += `
-                <div style="text-align: center; margin: 0 20px;">
-                    <img src="${imageUrl}" width="175" height="150" style="border-radius: 8px;">
-                    <h3 style="font-weight: bolder; margin: 10px 0 7px">${rec.model}</h3>
-                    <div style="margin: 5px 0;">
-                        <strong>Совместимость: ${rec.compatibility}%</strong>
+                <div class="shoe-card">
+                    <div class="shoe-image">
+                        <img src="${finalImageUrl}" alt="${rec.model}"
+                             onerror="this.src='https://via.placeholder.com/250x200/4285f4/ffffff?text='+encodeURIComponent('${rec.model.split(' ')[0]}')">
                     </div>
-                    <div style="margin: 5px 0; font-size: 14px; color: #666;">
-                        Рекомендуемый размер: EU ${rec.best_size.eu}
+                    <div class="shoe-model">${rec.model}</div>
+                    <div class="compatibility-badge" style="background: ${compatibilityColor}">
+                        Совместимость: ${rec.compatibility}%
                     </div>
-                    <a href="/shoe/${encodeURIComponent(rec.model)}" style="margin: 5px">
-                        <button class="nav-btn">Подробнее</button>
+                    <div class="size-info">
+                        Рекомендуемый размер: <strong>EU ${rec.best_size.eu}</strong>
+                    </div>
+                    <a href="/shoe/${encodeURIComponent(rec.model)}">
+                        <button class="nav-btn" style="margin-top: 10px;">Подробнее</button>
                     </a>
                 </div>
             `;
-        });
+        }
 
         html += '</div>';
         container.innerHTML = html;
@@ -98,6 +202,7 @@ async function loadRecommendations() {
         document.getElementById('recommendations-container').innerHTML = `
             <div style="text-align: center; padding: 40px;">
                 <p>Ошибка загрузки рекомендаций</p>
+                <button onclick="loadRecommendations()" class="btn btn-primary">Попробовать снова</button>
             </div>
         `;
     }

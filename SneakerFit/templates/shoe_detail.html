@@ -23,11 +23,12 @@
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
+            font-size: 14px;
         }
 
         .size-table th, .size-table td {
             border: 1px solid #ddd;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
         }
 
@@ -43,6 +44,235 @@
         .best-match {
             background: #e8f5e8 !important;
             border-left: 4px solid #4CAF50;
+        }
+
+        /* Увеличиваем ширину основного контейнера */
+        .container {
+            max-width: 1400px !important;
+        }
+
+        /* Новые стили для галереи */
+        .shoe-detail-container {
+            display: grid;
+            grid-template-columns: 500px 1fr; /* Увеличили ширину галереи */
+            gap: 50px; /* Увеличили расстояние */
+            align-items: start;
+        }
+
+        .gallery-section {
+            position: sticky;
+            top: 100px;
+        }
+
+        /* Увеличиваем основное изображение */
+        .main-image {
+            width: 100%;
+            height: 400px; /* Увеличили высоту */
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            cursor: pointer;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Изменили на contain чтобы все изображение было видно */
+            transition: transform 0.3s ease;
+        }
+
+        .main-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .thumbnail-gallery {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 15px 0;
+        }
+
+        /* Увеличиваем миниатюры */
+        .thumbnail {
+            width: 100px; /* Увеличили ширину */
+            height: 80px; /* Увеличили высоту */
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .thumbnail.active {
+            opacity: 1;
+            border: 3px solid #0014ff; /* Увеличили границу */
+        }
+
+        .thumbnail:hover {
+            opacity: 1;
+        }
+
+        /* Модальное окно для полноэкранного просмотра */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 95vh;
+            border-radius: 12px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 35px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        .modal-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            font-size: 28px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .modal-nav:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .modal-prev {
+            left: 30px;
+        }
+
+        .modal-next {
+            right: 30px;
+        }
+
+        .image-counter {
+            position: absolute;
+            bottom: -45px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        /* Улучшаем отображение информации */
+        .info-section h1 {
+            font-size: 32px;
+            margin-bottom: 25px;
+            color: #333;
+        }
+
+        .info-section h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #444;
+        }
+
+        .info-section p {
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 1200px !important;
+            }
+
+            .shoe-detail-container {
+                grid-template-columns: 450px 1fr;
+                gap: 40px;
+            }
+
+            .main-image {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .shoe-detail-container {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .gallery-section {
+                position: static;
+            }
+
+            .main-image {
+                height: 300px;
+            }
+
+            .thumbnail {
+                width: 90px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100% !important;
+                padding: 0 15px;
+            }
+
+            .size-table {
+                font-size: 12px;
+            }
+
+            .size-table th, .size-table td {
+                padding: 6px;
+            }
         }
     </style>
 </head>
@@ -68,74 +298,284 @@
         <div class="card" style="animation: fadeIn 0.4s">
             <a href="/fit" style="text-decoration: none; color: #0014ff; margin-bottom: 20px; display: inline-block;">← Назад к подбору</a>
 
-            <h1 style="text-align:center">{{ shoe.model }}</h1>
+            <div class="shoe-detail-container">
+                <!-- Левая часть - галерея -->
+                <div class="gallery-section">
+                    <div class="main-image" id="mainImage">
+                        <!-- Основное изображение будет загружено через JavaScript -->
+                    </div>
 
-            <div style="text-align: center; margin: 30px 0;">
-                <img src="https://via.placeholder.com/300x250/4285f4/ffffff?text={{ shoe.model | urlencode }}"
-                     style="border-radius: 10px; max-width: 100%;">
-            </div>
+                    <div class="thumbnail-gallery" id="thumbnailGallery">
+                        <!-- Миниатюры будут загружены через JavaScript -->
+                    </div>
+                </div>
 
-            <h2>Совместимость размеров</h2>
-            <p>На основе ваших данных:
-                {% if user.foot_length %}Длина: {{ user.foot_length }} см{% endif %}
-                {% if user.foot_width %}, Ширина: {{ user.foot_width }} см{% endif %}
-                {% if user.arch %}, Подъём: {{ user.arch }}{% endif %}
-                {% if user.foot_type %}, Тип стопы: {{ user.foot_type }}{% endif %}
-            </p>
+                <!-- Правая часть - информация о товаре -->
+                <div class="info-section">
+                    <h1 style="text-align:left; margin-bottom: 20px;">{{ shoe.model }}</h1>
 
-            <table class="size-table">
-                <thead>
-                    <tr>
-                        <th>Размер (EU)</th>
-                        <th>Длина (мм)</th>
-                        <th>Окружность носка (мм)</th>
-                        <th>Окружность середины (мм)</th>
-                        <th>Окружность щиколотки (мм)</th>
-                        <th>Высота подъема (мм)</th>
-                        <th>Совместимость</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item in sizes %}
-                    <tr class="{% if loop.first %}best-match{% endif %}">
-                        <td><strong>{{ item.size_data.eu }}</strong></td>
-                        <td>{{ item.size_data.length }}</td>
-                        <td>{{ item.size_data.toeCircumference }}</td>
-                        <td>{{ item.size_data.midfootCircumference }}</td>
-                        <td>{{ item.size_data.ankleCircumference }}</td>
-                        <td>{{ item.size_data.instepHeight }}</td>
-                        <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <span><strong>{{ item.compatibility }}%</strong></span>
-                                <div class="compatibility-bar" style="flex-grow: 1;">
-                                    <div class="compatibility-fill" style="width: {{ item.compatibility }}%;"></div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    <h2>Совместимость размеров</h2>
+                    <p>На основе ваших данных:
+                        {% if user.foot_length %}Длина: {{ user.foot_length }} см{% endif %}
+                        {% if user.foot_width %}, Ширина: {{ user.foot_width }} см{% endif %}
+                        {% if user.arch %}, Подъём: {{ user.arch }}{% endif %}
+                        {% if user.foot_type %}, Тип стопы: {{ user.foot_type }}{% endif %}
+                    </p>
 
-            <div style="background: #e8f5e8; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                <h3>🎯 Рекомендуемый размер: EU {{ sizes[0].size_data.eu }}</h3>
-                <p>Совместимость: <strong>{{ sizes[0].compatibility }}%</strong></p>
-                <p>Этот размер обеспечивает наилучшее соответствие вашим параметрам стопы.</p>
-            </div>
+                    <div style="overflow-x: auto;">
+                        <table class="size-table">
+                            <thead>
+                                <tr>
+                                    <th>Размер (EU)</th>
+                                    <th>Длина (мм)</th>
+                                    <th>Окружность носка (мм)</th>
+                                    <th>Окружность середины (мм)</th>
+                                    <th>Окружность щиколотки (мм)</th>
+                                    <th>Высота подъема (мм)</th>
+                                    <th>Совместимость</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in sizes %}
+                                <tr class="{% if loop.first %}best-match{% endif %}">
+                                    <td><strong>{{ item.size_data.eu }}</strong></td>
+                                    <td>{{ item.size_data.length }}</td>
+                                    <td>{{ item.size_data.toeCircumference }}</td>
+                                    <td>{{ item.size_data.midfootCircumference }}</td>
+                                    <td>{{ item.size_data.ankleCircumference }}</td>
+                                    <td>{{ item.size_data.instepHeight }}</td>
+                                    <td>
+                                        <div style="display: flex; align-items: center; gap: 10px;">
+                                            <span><strong>{{ item.compatibility }}%</strong></span>
+                                            <div class="compatibility-bar" style="flex-grow: 1;">
+                                                <div class="compatibility-fill" style="width: {{ item.compatibility }}%;"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
 
-            <div style="text-align: center; margin-top: 30px;">
-                <h3>Где купить?</h3>
-                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
-                    <a href="https://poizon.ru/search?q={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Poizon</a>
-                    <a href="https://www.ozon.ru/search/?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">OZON</a>
-                    <a href="https://aliexpress.ru/wholesale?SearchText={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">AliExpress</a>
-                    <a href="https://market.yandex.ru/search?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Яндекс.Маркет</a>
-                    <a href="https://www.wildberries.ru/catalog/0/search.aspx?search={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Wildberries</a>
+                    <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 25px 0;">
+                        <h3 style="margin: 0 0 10px 0;">🎯 Рекомендуемый размер: EU {{ sizes[0].size_data.eu }}</h3>
+                        <p style="margin: 5px 0;">Совместимость: <strong>{{ sizes[0].compatibility }}%</strong></p>
+                        <p style="margin: 5px 0;">Этот размер обеспечивает наилучшее соответствие вашим параметрам стопы.</p>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 30px;">
+                        <h3>Где купить?</h3>
+                        <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin: 20px 0;">
+                            <a href="https://poizon.ru/search?q={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Poizon</a>
+                            <a href="https://www.ozon.ru/search/?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">OZON</a>
+                            <a href="https://aliexpress.ru/wholesale?SearchText={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">AliExpress</a>
+                            <a href="https://market.yandex.ru/search?text={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Яндекс.Маркет</a>
+                            <a href="https://www.wildberries.ru/catalog/0/search.aspx?search={{ shoe.model | urlencode }}" target="_blank" class="btn btn-primary">Wildberries</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Модальное окно для полноэкранного просмотра -->
+<div class="modal-overlay" id="imageModal">
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <button class="modal-nav modal-prev" id="modalPrev">‹</button>
+        <button class="modal-nav modal-next" id="modalNext">›</button>
+        <img class="modal-image" id="modalImage" src="" alt="">
+        <div class="image-counter" id="imageCounter"></div>
+    </div>
+</div>
+
+<script>
+// Массив изображений для текущей модели
+let currentImages = [];
+let currentImageIndex = 0;
+
+// Функция для загрузки изображений модели
+function loadModelImages(modelName) {
+    const images = [];
+    let imageIndex = 1;
+
+    // Пытаемся загрузить изображения пока они существуют
+    while (imageIndex <= 10) { // Максимум 10 изображений на модель
+        // Формируем путь к изображению в структуре папок
+        const imageUrl = `/static/models%20photo/${encodeURIComponent(modelName)}/${imageIndex}.jpg`;
+
+        // Добавляем изображение в массив (проверка существования будет при загрузке)
+        images.push({
+            url: imageUrl,
+            index: imageIndex
+        });
+
+        imageIndex++;
+
+        // Прерываем если достигли максимума
+        if (imageIndex > 10) break;
+    }
+
+    return images;
+}
+
+// Функция для проверки существования изображения
+function checkImageExists(url, callback) {
+    const img = new Image();
+    img.onload = function() {
+        callback(true);
+    };
+    img.onerror = function() {
+        callback(false);
+    };
+    img.src = url;
+}
+
+// Функция для отображения галереи
+function renderGallery(images) {
+    const mainImage = document.getElementById('mainImage');
+    const thumbnailGallery = document.getElementById('thumbnailGallery');
+
+    // Проверяем какие изображения действительно существуют
+    const existingImages = [];
+    let checkedCount = 0;
+
+    if (images.length === 0) {
+        showPlaceholder();
+        return;
+    }
+
+    images.forEach((image, index) => {
+        checkImageExists(image.url, function(exists) {
+            checkedCount++;
+            if (exists) {
+                existingImages.push(image);
+            }
+
+            // Когда все проверены
+            if (checkedCount === images.length) {
+                if (existingImages.length === 0) {
+                    showPlaceholder();
+                } else {
+                    displayImages(existingImages);
+                }
+            }
+        });
+    });
+
+    function showPlaceholder() {
+        mainImage.innerHTML = '<div style="color: #666; text-align: center; padding: 50px; font-size: 18px;">Изображение отсутствует</div>';
+        thumbnailGallery.innerHTML = '';
+    }
+
+    function displayImages(validImages) {
+        // Устанавливаем изображения
+        currentImages = validImages;
+        currentImageIndex = 0;
+        updateMainImage();
+
+        // Создаем миниатюры
+        thumbnailGallery.innerHTML = '';
+        validImages.forEach((image, index) => {
+            const thumbnail = document.createElement('div');
+            thumbnail.className = `thumbnail ${index === 0 ? 'active' : ''}`;
+            thumbnail.innerHTML = `<img src="${image.url}" alt="${image.index}">`;
+            thumbnail.addEventListener('click', () => {
+                currentImageIndex = index;
+                updateMainImage();
+                updateThumbnails();
+            });
+            thumbnailGallery.appendChild(thumbnail);
+        });
+    }
+}
+
+// Обновление основного изображения
+function updateMainImage() {
+    const mainImage = document.getElementById('mainImage');
+    if (currentImages.length > 0) {
+        mainImage.innerHTML = `<img src="${currentImages[currentImageIndex].url}" alt="Image ${currentImages[currentImageIndex].index}">`;
+    }
+}
+
+// Обновление активной миниатюры
+function updateThumbnails() {
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach((thumb, index) => {
+        thumb.classList.toggle('active', index === currentImageIndex);
+    });
+}
+
+// Функции для модального окна
+function openModal() {
+    if (currentImages.length === 0) return;
+
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const imageCounter = document.getElementById('imageCounter');
+
+    modalImage.src = currentImages[currentImageIndex].url;
+    imageCounter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
+function navigateModal(direction) {
+    if (direction === 'prev') {
+        currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : currentImages.length - 1;
+    } else {
+        currentImageIndex = currentImageIndex < currentImages.length - 1 ? currentImageIndex + 1 : 0;
+    }
+
+    const modalImage = document.getElementById('modalImage');
+    const imageCounter = document.getElementById('imageCounter');
+
+    modalImage.src = currentImages[currentImageIndex].url;
+    imageCounter.textContent = `${currentImageIndex + 1} / ${currentImages.length}`;
+    updateMainImage();
+    updateThumbnails();
+}
+
+// Инициализация при загрузке страницы
+document.addEventListener('DOMContentLoaded', function() {
+    const modelName = "{{ shoe.model }}";
+    const images = loadModelImages(modelName);
+    renderGallery(images);
+
+    // Обработчики событий для основного изображения
+    document.getElementById('mainImage').addEventListener('click', openModal);
+
+    // Обработчики для модального окна
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalPrev').addEventListener('click', () => navigateModal('prev'));
+    document.getElementById('modalNext').addEventListener('click', () => navigateModal('next'));
+
+    // Закрытие модального окна по клику на оверлей
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal();
+        }
+    });
+
+    // Навигация клавишами
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('imageModal');
+        if (modal.style.display === 'flex') {
+            if (e.key === 'Escape') closeModal();
+            if (e.key === 'ArrowLeft') navigateModal('prev');
+            if (e.key === 'ArrowRight') navigateModal('next');
+        }
+    });
+});
+</script>
 
 <footer class="global-footer">by SneakerFit team © 2025</footer>
 </body>
