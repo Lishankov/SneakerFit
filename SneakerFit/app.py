@@ -81,11 +81,11 @@ def calculate_compatibility(user_data, shoe_size):
         user_arch = user_data['arch']
 
         if user_arch == 'Низкий':
-            ideal_min, ideal_max = 260, 290  # мм
+            ideal_min, ideal_max = 260, 290
         elif user_arch == 'Высокий':
-            ideal_min, ideal_max = 310, 350  # мм
+            ideal_min, ideal_max = 310, 350
         else:  # Средний
-            ideal_min, ideal_max = 285, 320  # мм
+            ideal_min, ideal_max = 285, 320
 
         if ideal_min <= arch_height <= ideal_max:
             arch_score = 15
@@ -228,12 +228,6 @@ def find_best_matches(user_email):
         print(f"Пользователь с email {user_email} не найден")
         return []
 
-    print(f"Данные пользователя: {user}")
-    print(f"Длина стопы: {user.get('foot_length')}")
-    print(f"Ширина стопы: {user.get('foot_width')}")
-    print(f"Подъем: {user.get('arch')}")
-    print(f"Тип стопы: {user.get('foot_type')}")
-
     shoes_db = load_shoes_database()
     recommendations = []
 
@@ -255,7 +249,7 @@ def find_best_matches(user_email):
 
         print(f"Модель: {shoe['model']}, Совместимость: {best_compatibility}")
 
-        if best_compatibility > 50:  # Минимальный порог совместимости
+        if best_compatibility > 30:
             recommendations.append({
                 'model': shoe['model'],
                 'compatibility': best_compatibility,
@@ -263,7 +257,6 @@ def find_best_matches(user_email):
                 'all_sizes': shoe['sizes']
             })
 
-    # Сортируем по совместимости
     recommendations.sort(key=lambda x: x['compatibility'], reverse=True)
     return recommendations[:6]
 
@@ -316,7 +309,6 @@ def update_user_measurements(email, data):
             changed = True
     if changed:
         save_users(users)
-        print(f"Обновлены измерения для {email}: длина={data.get('length')}, ширина={data.get('width')}")
 
 
 def update_user_profile(email, about=None, avatar_path=None):
