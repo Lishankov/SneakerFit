@@ -29,6 +29,43 @@
       ]
     },
     {
+      "model": "New Balance 530",
+      "sizes": [
+        {"eu": 32.5, "length": 190.0, "toeCircumference": 205.2, "midfootCircumference": 205.2, "ankleCircumference": 199.5, "instepHeight": 247.0},
+        {"eu": 33.0, "length": 195.0, "toeCircumference": 210.6, "midfootCircumference": 210.6, "ankleCircumference": 204.8, "instepHeight": 253.5},
+        {"eu": 33.5, "length": 200.0, "toeCircumference": 216.0, "midfootCircumference": 216.0, "ankleCircumference": 210.0, "instepHeight": 260.0},
+        {"eu": 34.5, "length": 205.0, "toeCircumference": 221.4, "midfootCircumference": 221.4, "ankleCircumference": 215.2, "instepHeight": 266.5},
+        {"eu": 35.0, "length": 210.0, "toeCircumference": 226.8, "midfootCircumference": 226.8, "ankleCircumference": 220.5, "instepHeight": 273.0},
+        {"eu": 35.5, "length": 215.0, "toeCircumference": 232.2, "midfootCircumference": 232.2, "ankleCircumference": 225.8, "instepHeight": 279.5},
+        {"eu": 36.0, "length": 220.0, "toeCircumference": 237.6, "midfootCircumference": 237.6, "ankleCircumference": 231.0, "instepHeight": 286.0},
+        {"eu": 37.0, "length": 225.0, "toeCircumference": 243.0, "midfootCircumference": 243.0, "ankleCircumference": 236.2, "instepHeight": 292.5},
+        {"eu": 37.5, "length": 230.0, "toeCircumference": 248.4, "midfootCircumference": 248.4, "ankleCircumference": 241.5, "instepHeight": 299.0},
+        {"eu": 38.0, "length": 235.0, "toeCircumference": 253.8, "midfootCircumference": 253.8, "ankleCircumference": 246.8, "instepHeight": 305.5},
+        {"eu": 38.5, "length": 240.0, "toeCircumference": 259.2, "midfootCircumference": 259.2, "ankleCircumference": 252.0, "instepHeight": 312.0},
+        {"eu": 39.5, "length": 245.0, "toeCircumference": 264.6, "midfootCircumference": 264.6, "ankleCircumference": 257.2, "instepHeight": 318.5},
+        {"eu": 40.0, "length": 250.0, "toeCircumference": 270.0, "midfootCircumference": 270.0, "ankleCircumference": 262.5, "instepHeight": 325.0},
+        {"eu": 40.5, "length": 255.0, "toeCircumference": 275.4, "midfootCircumference": 275.4, "ankleCircumference": 267.8, "instepHeight": 331.5},
+        {"eu": 41.5, "length": 260.0, "toeCircumference": 280.8, "midfootCircumference": 280.8, "ankleCircumference": 273.0, "instepHeight": 338.0},
+        {"eu": 42.0, "length": 265.0, "toeCircumference": 286.2, "midfootCircumference": 286.2, "ankleCircumference": 278.2, "instepHeight": 344.5},
+        {"eu": 42.5, "length": 270.0, "toeCircumference": 291.6, "midfootCircumference": 291.6, "ankleCircumference": 283.5, "instepHeight": 351.0},
+        {"eu": 43.0, "length": 275.0, "toeCircumference": 297.0, "midfootCircumference": 297.0, "ankleCircumference": 288.8, "instepHeight": 357.5},
+        {"eu": 44.0, "length": 280.0, "toeCircumference": 302.4, "midfootCircumference": 302.4, "ankleCircumference": 294.0, "instepHeight": 364.0},
+        {"eu": 44.5, "length": 285.0, "toeCircumference": 307.8, "midfootCircumference": 307.8, "ankleCircumference": 299.2, "instepHeight": 370.5},
+        {"eu": 45.0, "length": 290.0, "toeCircumference": 313.2, "midfootCircumference": 313.2, "ankleCircumference": 304.5, "instepHeight": 377.0},
+        {"eu": 45.5, "length": 295.0, "toeCircumference": 318.6, "midfootCircumference": 318.6, "ankleCircumference": 309.8, "instepHeight": 383.5},
+        {"eu": 46.5, "length": 300.0, "toeCircumference": 324.0, "midfootCircumference": 324.0, "ankleCircumference": 315.0, "instepHeight": 390.0},
+        {"eu": 47.0, "length": 305.0, "toeCircumference": 329.4, "midfootCircumference": 329.4, "ankleCircumference": 320.2, "instepHeight": 396.5},
+        {"eu": 47.5, "length": 310.0, "toeCircumference": 334.8, "midfootCircumference": 334.8, "ankleCircumference": 325.5, "instepHeight": 403.0},
+        {"eu": 49.0, "length": 320.0, "toeCircumference": 345.6, "midfootCircumference": 345.6, "ankleCircumference": 336.0, "instepHeight": 416.0},
+        {"eu": 50.0, "length": 330.0, "toeCircumference": 356.4, "midfootCircumference": 356.4, "ankleCircumference": 346.5, "instepHeight": 429.0},
+        {"eu": 51.0, "length": 340.0, "toeCircumference": 367.2, "midfootCircumference": 367.2, "ankleCircumference": 357.0, "instepHeight": 442.0},
+        {"eu": 52.0, "length": 350.0, "toeCircumference": 378.0, "midfootCircumference": 378.0, "ankleCircumference": 367.5, "instepHeight": 455.0},
+        {"eu": 53.0, "length": 360.0, "toeCircumference": 388.8, "midfootCircumference": 388.8, "ankleCircumference": 378.0, "instepHeight": 468.0},
+        {"eu": 54.0, "length": 370.0, "toeCircumference": 399.6, "midfootCircumference": 399.6, "ankleCircumference": 388.5, "instepHeight": 481.0},
+        {"eu": 55.0, "length": 380.0, "toeCircumference": 410.4, "midfootCircumference": 410.4, "ankleCircumference": 399.0, "instepHeight": 494.0}
+      ]
+    }
+    {
       "model": "ST Runner v4 Mid",
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 197.8, "midfootCircumference": 200, "ankleCircumference": 217.2, "instepHeight": 275.2},
