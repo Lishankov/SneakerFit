@@ -6,6 +6,7 @@ from werkzeug.utils import secure_filename
 import shutil
 import json
 import math
+import random
 
 def load_shoes_database():
     try:
@@ -390,7 +391,7 @@ def first():
 @app.route('/loggin')
 def index():
     if session.get('user_logged_in'):
-        return redirect('/welcome')
+        return redirect('/')
     return render_template('register.html')
 
 
@@ -408,7 +409,7 @@ def quick_login():
     session['user_logged_in'] = True
     session['user_email'] = demo_email
     session['user_name'] = 'Демо Пользователь'
-    return redirect('/welcome')
+    return redirect('/')
 
 
 @app.route('/register', methods=['POST'])
@@ -441,7 +442,7 @@ def register():
     session['user_email'] = email
     session['user_name'] = username
 
-    return jsonify({'success': True, 'message': 'Регистрация успешна', 'redirect': '/welcome'})
+    return jsonify({'success': True, 'message': 'Регистрация успешна', 'redirect': '/'})
 
 
 @app.route('/login', methods=['POST'])
@@ -463,7 +464,7 @@ def login():
     session['user_email'] = email
     session['user_name'] = user['username']
 
-    return jsonify({'success': True, 'message': 'Вход успешен', 'redirect': '/welcome'})
+    return jsonify({'success': True, 'message': 'Вход успешен', 'redirect': '/'})
 
 
 @app.route('/welcome')
@@ -634,6 +635,25 @@ def how():
 @app.route("/fit")
 def fit():
     return render_template("fit.html")
+
+@app.route('/get_random_shoe')
+def get_random_shoe():
+    try:
+        shoes_db = load_shoes_database()
+        if not shoes_db.get('sneakers'):
+            return jsonify({'error': 'No shoes available'})
+
+        # Выбираем случайную модель обуви
+        random_shoe = random.choice(shoes_db['sneakers'])
+
+        return jsonify({
+            'model': random_shoe['model'],
+            'sizes_available': len(random_shoe['sizes'])
+        })
+
+    except Exception as e:
+        print(f"Error getting random shoe: {e}")
+        return jsonify({'error': 'Failed to load shoe data'})
 
 
 if __name__ == '__main__':

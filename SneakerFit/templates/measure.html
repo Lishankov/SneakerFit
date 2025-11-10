@@ -19,7 +19,9 @@
 </head>
 <body>
 <div class="topbar">
-    <div class="logo">SneakerFit</div>
+    <a href="/" style="text-decoration: none;">
+        <div class="logo">SneakerFit</div>
+    </a>
 
     <div class="center-menu">
         <a href="/how"><button class="ghost-btn">Как это работает</button></a>
@@ -39,7 +41,7 @@
         <h1>Мои измерения</h1>
         <p style="color: #666; margin-bottom: 20px;">Заполните параметры вашей стопы для точного подбора обуви</p>
 
-        <form method="POST" id="measureForm" onsubmit="return validateForm()">
+        <form method="POST" id="measureForm">
             <div class="form-group">
                 <label for="length">Длина стопы (см) *</label>
                 <input type="number" id="length" name="length" step="0.1" min="15" max="40"
@@ -107,97 +109,7 @@
 </div>
 </div>
 
-<script>
-function validateForm() {
-    let isValid = true;
-
-    const lengthInput = document.getElementById('length');
-    const lengthError = document.getElementById('lengthError');
-    if (!lengthInput.value || lengthInput.value < 15 || lengthInput.value > 40) {
-        lengthError.style.display = 'block';
-        isValid = false;
-    } else {
-        lengthError.style.display = 'none';
-    }
-
-    const widthInput = document.getElementById('width');
-    const widthError = document.getElementById('widthError');
-    if (!widthInput.value || widthInput.value < 5 || widthInput.value > 15) {
-        widthError.style.display = 'block';
-        isValid = false;
-    } else {
-        widthError.style.display = 'none';
-    }
-
-    const archSelect = document.getElementById('arch');
-    const archError = document.getElementById('archError');
-    if (!archSelect.value) {
-        archError.style.display = 'block';
-        isValid = false;
-    } else {
-        archError.style.display = 'none';
-    }
-
-    const dominantSelect = document.getElementById('dominant');
-    const dominantError = document.getElementById('dominantError');
-    if (!dominantSelect.value) {
-        dominantError.style.display = 'block';
-        isValid = false;
-    } else {
-        dominantError.style.display = 'none';
-    }
-
-    const footTypeSelect = document.getElementById('foot_type');
-    const footTypeError = document.getElementById('footTypeError');
-    if (!footTypeSelect.value) {
-        footTypeError.style.display = 'block';
-        isValid = false;
-    } else {
-        footTypeError.style.display = 'none';
-    }
-
-    return isValid;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const lengthInput = document.getElementById('length');
-    const widthInput = document.getElementById('width');
-
-    lengthInput.addEventListener('input', function() {
-        if (this.value < 0) this.value = Math.abs(this.value);
-        if (this.value < 15 || this.value > 40) {
-            this.style.borderColor = '#d32f2f';
-        } else {
-            this.style.borderColor = '#e8e8e8';
-        }
-    });
-
-    widthInput.addEventListener('input', function() {
-        if (this.value < 0) this.value = Math.abs(this.value);
-        if (this.value < 5 || this.value > 15) {
-            this.style.borderColor = '#d32f2f';
-        } else {
-            this.style.borderColor = '#e8e8e8';
-        }
-    });
-
-    const numberInputs = document.querySelectorAll('input[type="number"]');
-    numberInputs.forEach(input => {
-        input.addEventListener('keydown', function(e) {
-            if (e.key === '-' || e.key === 'e' || e.key === 'E') {
-                e.preventDefault();
-            }
-        });
-
-        input.addEventListener('blur', function() {
-            if (this.value < 0) {
-                this.value = Math.abs(this.value);
-            }
-        });
-    });
-});
-</script>
-
+<script src="{{ url_for('static', filename='js/measure.js') }}"></script>
 <footer class="global-footer">
     <p>by SneakerFit team © 2025</p>
 </footer>
