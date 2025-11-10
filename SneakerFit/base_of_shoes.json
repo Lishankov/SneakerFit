@@ -64,9 +64,9 @@
         {"eu": 54.0, "length": 370.0, "toeCircumference": 399.6, "midfootCircumference": 399.6, "ankleCircumference": 388.5, "instepHeight": 481.0},
         {"eu": 55.0, "length": 380.0, "toeCircumference": 410.4, "midfootCircumference": 410.4, "ankleCircumference": 399.0, "instepHeight": 494.0}
       ]
-    }
+    },
     {
-      "model": "ST Runner v4 Mid",
+      "model": "Puma ST Runner v4 Mid",
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 197.8, "midfootCircumference": 200, "ankleCircumference": 217.2, "instepHeight": 275.2},
         {"eu": 35.5, "length": 220, "toeCircumference": 202.4, "midfootCircumference": 204.6, "ankleCircumference": 222.2, "instepHeight": 281.6},
