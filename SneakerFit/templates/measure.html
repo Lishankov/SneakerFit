@@ -59,14 +59,11 @@
             </div>
 
             <div class="form-group">
-                <label for="arch">Подъём *</label>
-                <select id="arch" name="arch" required>
-                    <option value="">Выберите тип подъема</option>
-                    <option value="Низкий" {% if user_measurements.arch == 'Низкий' %}selected{% endif %}>Низкий</option>
-                    <option value="Средний" {% if user_measurements.arch == 'Средний' %}selected{% endif %}>Средний</option>
-                    <option value="Высокий" {% if user_measurements.arch == 'Высокий' %}selected{% endif %}>Высокий</option>
-                </select>
-                <div class="error-message" id="archError">Пожалуйста, выберите тип подъема</div>
+                <label for="oblique_circumference">Косой обхват (см) *</label>
+                <input type="number" id="oblique_circumference" name="oblique_circumference" step="0.1" min="20" max="50"
+                       value="{{ user_measurements.oblique_circumference if user_measurements.oblique_circumference else '' }}"
+                       placeholder="Например: 28.5" required>
+                <div class="error-message" id="obliqueCircumferenceError">Косой обхват должен быть от 20 до 50 см</div>
             </div>
 
             <div class="form-group">

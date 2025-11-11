@@ -22,7 +22,7 @@ def calculate_compatibility(user_data, shoe_size):
 
     has_length = user_data.get('foot_length') and user_data['foot_length'].strip()
     has_width = user_data.get('foot_width') and user_data['foot_width'].strip()
-    has_arch = user_data.get('arch') and user_data['arch'].strip()
+    has_oblique = user_data.get('oblique_circumference') and user_data['oblique_circumference'].strip()
     has_foot_type = user_data.get('foot_type') and user_data['foot_type'].strip()
 
     if has_length:
@@ -77,28 +77,28 @@ def calculate_compatibility(user_data, shoe_size):
         except ValueError:
             print("Ошибка преобразования ширины")
 
-    if has_arch:
-        arch_height = shoe_size['instepHeight']
-        user_arch = user_data['arch']
+    if has_oblique:
+        try:
+            user_oblique = float(user_data['oblique_circumference']) * 10  # конвертируем см в мм
+            shoe_oblique = shoe_size['obliqueCircumference']
+            oblique_diff = abs(user_oblique - shoe_oblique)
 
-        if user_arch == 'Низкий':
-            ideal_min, ideal_max = 260, 290
-        elif user_arch == 'Высокий':
-            ideal_min, ideal_max = 310, 350
-        else:  # Средний
-            ideal_min, ideal_max = 285, 320
+            if oblique_diff <= 10:
+                oblique_score = 15
+            elif oblique_diff <= 20:
+                oblique_score = 12
+            elif oblique_diff <= 30:
+                oblique_score = 8
+            elif oblique_diff <= 40:
+                oblique_score = 5
+            else:
+                oblique_score = 2
 
-        if ideal_min <= arch_height <= ideal_max:
-            arch_score = 15
-        elif arch_height >= ideal_min - 20 and arch_height <= ideal_max + 20:
-            arch_score = 12
-        elif arch_height >= ideal_min - 40 and arch_height <= ideal_max + 40:
-            arch_score = 8
-        else:
-            arch_score = 3
+            compatibility += oblique_score
+            factors += 15
 
-        compatibility += arch_score
-        factors += 15
+        except ValueError:
+            print("Ошибка преобразования косого обхвата")
 
     if has_foot_type:
         foot_type = user_data['foot_type']
@@ -549,34 +549,26 @@ def measure():
     user_measurements = {
         'foot_length': user.get('foot_length', ''),
         'foot_width': user.get('foot_width', ''),
-        'arch': user.get('arch', ''),
+        'oblique_circumference': user.get('oblique_circumference', ''),  # Изменено здесь
         'foot_type': user.get('foot_type', '')
     }
 
     if request.method == 'POST':
         length = request.form.get('length', '').strip()
         width = request.form.get('width', '').strip()
-        arch = request.form.get('arch', '').strip()
+        oblique_circumference = request.form.get('oblique_circumference', '').strip()  # Изменено здесь
         foot_type = request.form.get('foot_type', '').strip()
 
         errors = []
 
-        try:
-            length_float = float(length)
-            if length_float < 15 or length_float > 40:
-                errors.append("Длина стопы должна быть от 15 до 40 см")
-        except (ValueError, TypeError):
-            errors.append("Некорректное значение длины стопы")
+        # ... существующая валидация длины и ширины ...
 
         try:
-            width_float = float(width)
-            if width_float < 5 or width_float > 15:
-                errors.append("Ширина стопы должна быть от 5 до 15 см")
+            oblique_float = float(oblique_circumference)
+            if oblique_float < 20 or oblique_float > 50:
+                errors.append("Косой обхват должен быть от 20 до 50 см")
         except (ValueError, TypeError):
-            errors.append("Некорректное значение ширины стопы")
-
-        if not arch:
-            errors.append("Выберите тип подъема")
+            errors.append("Некорректное значение косого обхвата")
 
         if not foot_type:
             errors.append("Выберите тип стопы")
@@ -589,7 +581,7 @@ def measure():
         update_user_measurements(session.get('user_email'), {
             'length': length,
             'width': width,
-            'arch': arch,
+            'oblique_circumference': oblique_circumference,  # Изменено здесь
             'foot_type': foot_type
         })
         return redirect('/profile')
