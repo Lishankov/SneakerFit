@@ -16,7 +16,7 @@ def load_shoes_database():
         return {"sneakers": []}
 
 
-def calculate_compatibility(user_data, shoe_size):
+def calculate_compatibility(user_data, shoe_size, is_sport=1):
     compatibility = 0
     factors = 0
 
@@ -29,6 +29,12 @@ def calculate_compatibility(user_data, shoe_size):
         try:
             user_length = float(user_data['foot_length']) * 10
             shoe_length = shoe_size['length']
+
+            if is_sport == 1:
+                user_length += 4
+            else:
+                user_length += 6
+
             length_diff = abs(user_length - shoe_length)
 
             if length_diff <= 3:
@@ -79,7 +85,7 @@ def calculate_compatibility(user_data, shoe_size):
 
     if has_oblique:
         try:
-            user_oblique = float(user_data['oblique_circumference']) * 10  # конвертируем см в мм
+            user_oblique = float(user_data['oblique_circumference']) * 10
             shoe_oblique = shoe_size['obliqueCircumference']
             oblique_diff = abs(user_oblique - shoe_oblique)
 
@@ -137,6 +143,10 @@ def calculate_compatibility(user_data, shoe_size):
     if has_length:
         user_length = float(user_data['foot_length']) * 10
         shoe_length = shoe_size['length']
+        if is_sport == 1:
+            shoe_length += 4
+        else:
+            shoe_length += 6
         if abs(user_length - shoe_length) <= 2:
             final_compatibility = min(100, final_compatibility + 5)
 
@@ -160,7 +170,7 @@ def find_best_matches(user_email):
                 'foot_width': user.get('foot_width'),
                 'arch': user.get('arch'),
                 'foot_type': user.get('foot_type')
-            }, size)
+            }, size, is_sport=shoe.get('sport', 1))
 
             if compatibility > best_compatibility:
                 best_compatibility = compatibility
@@ -242,7 +252,7 @@ def find_best_matches(user_email):
                 'foot_width': user.get('foot_width'),
                 'arch': user.get('arch'),
                 'foot_type': user.get('foot_type')
-            }, size)
+            }, size, is_sport=shoe.get('sport', 1))
 
             if compatibility > best_compatibility:
                 best_compatibility = compatibility
@@ -360,7 +370,7 @@ def shoe_detail(model_name):
             'foot_width': user['foot_width'],
             'arch': user['arch'],
             'foot_type': user['foot_type']
-        }, size)
+        }, size, is_sport=shoe.get('sport', 1))
 
         size_compatibilities.append({
             'size_data': size,

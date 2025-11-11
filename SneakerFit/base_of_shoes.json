@@ -2,6 +2,7 @@
   "sneakers": [
     {
       "model": "Puma Rebound LayUp",
+      "sport": 1,
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 202.1, "midfootCircumference": 202.1, "ankleCircumference": 219.3, "obliqueCircumference": 279.5},
         {"eu": 35.5, "length": 220, "toeCircumference": 206.8, "midfootCircumference": 206.8, "ankleCircumference": 224.4, "obliqueCircumference": 286},
@@ -30,6 +31,7 @@
     },
     {
       "model": "New Balance 530",
+      "sport": 1,
       "sizes": [
         {"eu": 32.5, "length": 190.0, "toeCircumference": 205.2, "midfootCircumference": 205.2, "ankleCircumference": 199.5, "obliqueCircumference": 247.0},
         {"eu": 33.0, "length": 195.0, "toeCircumference": 210.6, "midfootCircumference": 210.6, "ankleCircumference": 204.8, "obliqueCircumference": 253.5},
@@ -67,6 +69,7 @@
     },
     {
       "model": "Puma ST Runner v4 Mid",
+      "sport": 0,
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 197.8, "midfootCircumference": 200, "ankleCircumference": 217.2, "obliqueCircumference": 275.2},
         {"eu": 35.5, "length": 220, "toeCircumference": 202.4, "midfootCircumference": 204.6, "ankleCircumference": 222.2, "obliqueCircumference": 281.6},
@@ -95,6 +98,7 @@
     },
     {
       "model": "Puma Club 2",
+      "sport": 0,
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 206.4, "midfootCircumference": 210.7, "ankleCircumference": 215, "obliqueCircumference": 283.8},
         {"eu": 35.5, "length": 220, "toeCircumference": 211.2, "midfootCircumference": 215.6, "ankleCircumference": 220, "obliqueCircumference": 290.4},
@@ -124,6 +128,7 @@
     },
     {
       "model": "Puma Court Classic Clean",
+      "sport": 0,
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 225, "midfootCircumference": 225, "ankleCircumference": 240, "obliqueCircumference": 310},
         {"eu": 35.5, "length": 220, "toeCircumference": 230, "midfootCircumference": 230, "ankleCircumference": 245, "obliqueCircumference": 315},
@@ -152,6 +157,7 @@
     },
     {
       "model": "Puma Park Lifestyle Easy",
+      "sport": 0,
       "sizes": [
         {"eu": 35, "length": 213.9, "toeCircumference": 207.1, "midfootCircumference": 203.2, "ankleCircumference": 221.8, "obliqueCircumference": 282.3},
         {"eu": 35.5, "length": 219, "toeCircumference": 211.9, "midfootCircumference": 208, "ankleCircumference": 227.2, "obliqueCircumference": 288.9},
