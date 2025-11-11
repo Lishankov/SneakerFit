@@ -82,15 +82,6 @@ function validateForm(e) {
         archError.style.display = 'none';
     }
 
-    const dominantSelect = document.getElementById('dominant');
-    const dominantError = document.getElementById('dominantError');
-    if (!dominantSelect.value) {
-        dominantError.style.display = 'block';
-        isValid = false;
-    } else {
-        dominantError.style.display = 'none';
-    }
-
     const footTypeSelect = document.getElementById('foot_type');
     const footTypeError = document.getElementById('footTypeError');
     if (!footTypeSelect.value) {

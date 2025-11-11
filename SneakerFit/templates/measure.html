@@ -70,16 +70,6 @@
             </div>
 
             <div class="form-group">
-                <label for="dominant">Доминирующая нога *</label>
-                <select id="dominant" name="dominant" required>
-                    <option value="">Выберите доминирующую ногу</option>
-                    <option value="Правая" {% if user_measurements.dominant == 'Правая' %}selected{% endif %}>Правая</option>
-                    <option value="Левая" {% if user_measurements.dominant == 'Левая' %}selected{% endif %}>Левая</option>
-                </select>
-                <div class="error-message" id="dominantError">Пожалуйста, выберите доминирующую ногу</div>
-            </div>
-
-            <div class="form-group">
                 <label for="foot_type">Тип стопы *</label>
                 <select id="foot_type" name="foot_type" required>
                     <option value="">Выберите тип стопы</option>

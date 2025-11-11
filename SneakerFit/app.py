@@ -305,7 +305,7 @@ def update_user_measurements(email, data):
             u[5] = data.get('length', '').strip() or ''
             u[6] = data.get('width', '').strip() or ''
             u[7] = data.get('arch', '').strip() or ''
-            u[8] = data.get('dominant', '').strip() or ''
+            u[8] = ''
             u[9] = data.get('foot_type', '').strip() or ''
             changed = True
     if changed:
@@ -550,7 +550,6 @@ def measure():
         'foot_length': user.get('foot_length', ''),
         'foot_width': user.get('foot_width', ''),
         'arch': user.get('arch', ''),
-        'dominant': user.get('dominant', ''),
         'foot_type': user.get('foot_type', '')
     }
 
@@ -558,7 +557,6 @@ def measure():
         length = request.form.get('length', '').strip()
         width = request.form.get('width', '').strip()
         arch = request.form.get('arch', '').strip()
-        dominant = request.form.get('dominant', '').strip()
         foot_type = request.form.get('foot_type', '').strip()
 
         errors = []
@@ -580,9 +578,6 @@ def measure():
         if not arch:
             errors.append("Выберите тип подъема")
 
-        if not dominant:
-            errors.append("Выберите доминирующую ногу")
-
         if not foot_type:
             errors.append("Выберите тип стопы")
 
@@ -595,14 +590,12 @@ def measure():
             'length': length,
             'width': width,
             'arch': arch,
-            'dominant': dominant,
             'foot_type': foot_type
         })
         return redirect('/profile')
 
     return render_template('measure.html',
                            user_measurements=user_measurements, errors=[])
-
 
 @app.route('/users')
 def view_users():
