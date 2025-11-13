@@ -269,7 +269,7 @@ def find_best_matches(user_email):
             })
 
     recommendations.sort(key=lambda x: x['compatibility'], reverse=True)
-    return recommendations[:6]
+    return recommendations
 
 def get_user_by_email(email):
     for u in load_users():
@@ -283,7 +283,7 @@ def get_user_by_email(email):
                 'foot_length': u[5],
                 'foot_width': u[6],
                 'arch': u[7],
-                'dominant': u[8],
+                'oblique_circumference': u[8],
                 'foot_type': u[9],
                 'avatar': u[10],
                 'about': u[11]
@@ -315,7 +315,7 @@ def update_user_measurements(email, data):
             u[5] = data.get('length', '').strip() or ''
             u[6] = data.get('width', '').strip() or ''
             u[7] = data.get('arch', '').strip() or ''
-            u[8] = ''
+            u[8] = data.get('oblique_circumference', '').strip() or ''
             u[9] = data.get('foot_type', '').strip() or ''
             changed = True
     if changed:
