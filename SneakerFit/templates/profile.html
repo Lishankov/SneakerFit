@@ -80,6 +80,7 @@
                     <div><strong>Ширина:</strong> {{ user.foot_width or '-' }} см</div>
                     <div><strong>Косой обхват:</strong> {{ user.oblique_circumference or '-' }} см</div>
                     <div><strong>Тип:</strong> {{ user.foot_type or '-' }}</div>
+                    <p><strong>Подписка:</strong> {{ 'Активна' if user.subscription else 'Нет' }}</p>
                 </div>
             </section>
 

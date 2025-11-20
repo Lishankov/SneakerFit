@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Подбор — SneakerFit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         .recommendations-grid {
@@ -20,6 +21,10 @@
             transition: all 0.3s ease;
             text-align: center;
             border: 1px solid #f0f0f0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .shoe-card:hover {
@@ -43,12 +48,16 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .shoe-card:hover .shoe-image img {
+            transform: scale(1.05);
         }
 
         .compatibility-badge {
             display: inline-block;
             padding: 4px 12px;
-            background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
             border-radius: 20px;
             font-size: 14px;
@@ -68,6 +77,130 @@
             margin: 10px 0;
             color: #333;
             line-height: 1.3;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .shoe-actions {
+            margin-top: auto;
+            padding-top: 15px;
+        }
+
+        .show-more-container {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+        }
+
+        .results-count {
+            text-align: center;
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .no-recommendations {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-recommendations h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .loading-container {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .filter-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .filter-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            background: white;
+            min-width: 150px;
+        }
+
+        @media (max-width: 768px) {
+            .recommendations-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+
+            .filter-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-select {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .recommendations-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .shoe-card {
+                padding: 15px;
+            }
+
+            .shoe-image {
+                height: 180px;
+            }
+        }
+        .shoe-type-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 5px 0;
+            color: white;
+        }
+
+        .sport-badge {
+            background: #2196F3;
+        }
+
+        .casual-badge {
+            background: #FF9800;
+        }
+
+        .filter-group button {
+            white-space: nowrap;
         }
     </style>
 </head>
@@ -98,11 +231,62 @@
                 На основе ваших измерений стопы
             </p>
 
-            <div id="recommendations-container">
-                <div style="text-align: center; padding: 40px;">
-                    <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
-                    <p style="margin-top: 20px;">Загружаем рекомендации...</p>
+            <div class="filter-section">
+                <div class="filter-row">
+                    <div class="filter-group">
+                        <label for="compatibilityFilter">Совместимость</label>
+                        <select id="compatibilityFilter" class="filter-select">
+                            <option value="all">Все модели</option>
+                            <option value="80">80% и выше</option>
+                            <option value="60">60% и выше</option>
+                            <option value="40">40% и выше</option>
+                            <option value="20">20% и выше</option>
+                            <option value="0">0% и выше</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="sortFilter">Сортировка</label>
+                        <select id="sortFilter" class="filter-select">
+                            <option value="compatibility-desc">По совместимости (убыв.)</option>
+                            <option value="compatibility-asc">По совместимости (возр.)</option>
+                            <option value="name-asc">По названию (А-Я)</option>
+                            <option value="name-desc">По названию (Я-А)</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <label for="typeFilter">Тип обуви</label>
+                        <select id="typeFilter" class="filter-select">
+                            <option value="all">Все типы</option>
+                            <option value="sport">Спортивная</option>
+                            <option value="casual">Повседневная</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group">
+                        <button onclick="resetFilters()" class="btn btn-secondary" style="margin-top: 22px;">
+                            Сбросить фильтры
+                        </button>
+                    </div>
                 </div>
+            </div>
+
+            <div class="results-count" id="resultsCount">
+                Загружаем рекомендации...
+            </div>
+
+            <div id="recommendations-container">
+                <div class="loading-container">
+                    <div class="spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
+                    <p style="margin-top: 20px; color: #666;">Загружаем рекомендации...</p>
+                </div>
+            </div>
+
+            <div class="show-more-container" id="showMoreContainer" style="display: none;">
+                <button id="showMoreBtn" class="btn btn-primary">
+                    Показать еще
+                </button>
             </div>
         </div>
     </div>
