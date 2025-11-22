@@ -9,18 +9,30 @@ let currentFilters = {
 async function loadRecommendations() {
     try {
         const response = await fetch('/get_recommendations');
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+
         const recommendations = await response.json();
 
         const container = document.getElementById('recommendations-container');
         const resultsCount = document.getElementById('resultsCount');
+        const filterSection = document.querySelector('.filter-section');
 
         if (recommendations.error) {
             container.innerHTML = `
                 <div style="text-align: center; padding: 40px;">
-                    <p>Пожалуйста, войдите в систему</p>
-                    <a href="/loggin" class="btn btn-primary">Войти</a>
+                    <h3>Требуется авторизация</h3>
+                    <p>Для просмотра рекомендаций необходимо войти в систему</p>
+                    <div style="margin-top: 20px;">
+                        <a href="/login_page" class="btn btn-primary" style="margin-right: 10px;">Войти</a>
+                        <a href="/register_page" class="btn btn-secondary">Зарегистрироваться</a>
+                    </div>
                 </div>
             `;
+            resultsCount.textContent = 'Требуется авторизация';
+            if (filterSection) filterSection.style.display = 'none';
             return;
         }
 
@@ -33,8 +45,12 @@ async function loadRecommendations() {
                 </div>
             `;
             resultsCount.textContent = 'Рекомендации не найдены';
+            if (filterSection) filterSection.style.display = 'none';
             return;
         }
+
+        // Показываем секцию фильтров только если есть рекомендации
+        if (filterSection) filterSection.style.display = 'block';
 
         // Добавляем тип обуви к каждой рекомендации
         const recommendationsWithType = await Promise.all(
@@ -53,12 +69,18 @@ async function loadRecommendations() {
 
     } catch (error) {
         console.error('Error loading recommendations:', error);
-        document.getElementById('recommendations-container').innerHTML = `
+        const container = document.getElementById('recommendations-container');
+        const resultsCount = document.getElementById('resultsCount');
+        const filterSection = document.querySelector('.filter-section');
+
+        container.innerHTML = `
             <div style="text-align: center; padding: 40px;">
                 <p>Ошибка загрузки рекомендаций</p>
                 <button onclick="loadRecommendations()" class="btn btn-primary">Попробовать снова</button>
             </div>
         `;
+        resultsCount.textContent = 'Ошибка загрузки';
+        if (filterSection) filterSection.style.display = 'none';
     }
 }
 
@@ -66,8 +88,9 @@ async function loadRecommendations() {
 async function getShoeType(modelName) {
     try {
         const response = await fetch('/get_shoe_type?model=' + encodeURIComponent(modelName));
+        if (!response.ok) return 'sport';
         const data = await response.json();
-        return data.shoeType || 'sport'; // По умолчанию спортивная
+        return data.shoeType || 'sport';
     } catch (error) {
         console.error('Error getting shoe type:', error);
         // Определяем тип по названию модели (эвристика)
@@ -77,7 +100,7 @@ async function getShoeType(modelName) {
         } else if (modelLower.includes('club') || modelLower.includes('court') || modelLower.includes('lifestyle')) {
             return 'casual';
         }
-        return 'sport'; // По умолчанию
+        return 'sport';
     }
 }
 
@@ -220,18 +243,7 @@ function getCompatibilityColor(percentage) {
     if (percentage >= 60) return '#FF9800';
     if (percentage >= 40) return '#FFC107';
     if (percentage >= 20) return '#FF5722';
-    return '#9E9E9E'; // Для очень низкой совместимости
-}
-
-function checkImageExists(url, callback) {
-    const img = new Image();
-    img.onload = function() {
-        callback(true);
-    };
-    img.onerror = function() {
-        callback(false);
-    };
-    img.src = url;
+    return '#9E9E9E';
 }
 
 // Обработчик для кнопки "Показать еще"

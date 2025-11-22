@@ -158,7 +158,7 @@ def find_best_matches(user_email):
 @app.route('/shoe/<model_name>')
 def shoe_detail(model_name):
     if not session.get('user_logged_in'):
-        return redirect('/loggin')
+        return redirect('/login_page')
 
     shoes_db = load_shoes_database()
     shoe = None
@@ -171,7 +171,7 @@ def shoe_detail(model_name):
 
     user = get_user_by_email(session.get('user_email'))
     if not user:
-        return redirect('/loggin')
+        return redirect('/login_page')
 
     sizes_compatibility = []
     for size in shoe['sizes']:
@@ -210,62 +210,108 @@ def get_shoe_type():
 
     return jsonify({'shoeType': 'sport'})
 
-@app.route('/loggin')
-def index():
+@app.route('/register_page')
+def register_page():
     if session.get('user_logged_in'):
         return redirect('/')
     return render_template('register.html')
 
+@app.route('/login_page')
+def login_page():
+    if session.get('user_logged_in'):
+        return redirect('/')
+    return render_template('login.html')
+
+@app.route('/login')
+def login_redirect():
+    return redirect('/login_page')
+
+
 @app.route('/register', methods=['POST'])
 def register():
-    username = request.form.get('username', '').strip()
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password', '').strip()
+    try:
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
 
-    if not username or not email or not password:
-        return jsonify({'success': False, 'message': 'Все поля обязательны'})
-    if len(username) < 3:
-        return jsonify({'success': False, 'message': 'Имя слишком короткое'})
-    if not is_valid_email(email):
-        return jsonify({'success': False, 'message': 'Неверный email'})
-    if len(password) < 6:
-        return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
-    if user_exists(email):
-        return jsonify({'success': False, 'message': 'Пользователь уже существует'})
+        print(f"Registration attempt: {username}, {email}")  # Debug log
 
-    save_user({
-        'username': username,
-        'email': email,
-        'password': password,
-        'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'registration_type': 'form'
-    })
+        if not username or not email or not password:
+            return jsonify({'success': False, 'message': 'Все поля обязательны'})
+        if len(username) < 3:
+            return jsonify({'success': False, 'message': 'Имя слишком короткое'})
+        if not is_valid_email(email):
+            return jsonify({'success': False, 'message': 'Неверный email'})
+        if len(password) < 6:
+            return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
 
-    session['user_logged_in'] = True
-    session['user_email'] = email
-    session['user_name'] = username
+        # Проверяем существование пользователя
+        if user_exists(email):
+            return jsonify({'success': False, 'message': 'Пользователь уже существует'})
 
-    return jsonify({'success': True, 'message': 'Регистрация успешна', 'redirect': '/'})
+        # Сохраняем пользователя
+        success = save_user({
+            'username': username,
+            'email': email,
+            'password': password,
+            'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'registration_type': 'form'
+        })
+
+        if not success:
+            return jsonify({'success': False, 'message': 'Ошибка при сохранении пользователя'})
+
+        # Устанавливаем сессию
+        session['user_logged_in'] = True
+        session['user_email'] = email
+        session['user_name'] = username
+
+        return jsonify({
+            'success': True,
+            'message': 'Регистрация успешна',
+            'redirect': '/'
+        })
+
+    except Exception as e:
+        print(f"Error in register: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
 
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form.get('email', '').strip()
-    password = request.form.get('password', '').strip()
+    try:
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
 
-    if not email or not password:
-        return jsonify({'success': False, 'message': 'Введите email и пароль'})
+        print(f"Login attempt: {email}")  # Debug log
 
-    user = get_user_by_email(email)
-    if not user:
-        return jsonify({'success': False, 'message': 'Пользователь не найден'})
-    if user['password'] != password:
-        return jsonify({'success': False, 'message': 'Неверный пароль'})
+        if not email or not password:
+            return jsonify({'success': False, 'message': 'Введите email и пароль'})
 
-    session['user_logged_in'] = True
-    session['user_email'] = email
-    session['user_name'] = user['username']
+        user = get_user_by_email(email)
+        print(f"User found: {user}")  # Debug log
 
-    return jsonify({'success': True, 'message': 'Вход успешен', 'redirect': '/'})
+        if not user:
+            return jsonify({'success': False, 'message': 'Пользователь не найден'})
+
+        # Сравниваем пароли
+        if user['password'] != password:
+            return jsonify({'success': False, 'message': 'Неверный пароль'})
+
+        # Устанавливаем сессию
+        session['user_logged_in'] = True
+        session['user_email'] = email
+        session['user_name'] = user['username']
+
+        return jsonify({
+            'success': True,
+            'message': 'Вход успешен',
+            'redirect': '/'
+        })
+
+    except Exception as e:
+        print(f"Error in login: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
 
 @app.route('/logout')
 def logout():
@@ -319,7 +365,7 @@ def nickname_update():
 @app.route('/measure', methods=['GET', 'POST'])
 def measure():
     if not session.get('user_logged_in'):
-        return redirect('/loggin')
+        return redirect('/login_page')
     user = get_user_by_email(session.get('user_email'))
     if request.method == 'POST':
         length = request.form.get('length', '').strip()

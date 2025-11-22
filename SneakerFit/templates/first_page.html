@@ -20,17 +20,27 @@
         </div>
 
         <div class="right-menu">
-            <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
-            <a href="/profile"><button class="nav-btn">Профиль</button></a>
+            {% if session.user_logged_in %}
+                <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
+                <a href="/profile"><button class="nav-btn">Профиль</button></a>
+                <a href="/logout"><button class="nav-btn">Выйти</button></a>
+            {% else %}
+                <a href="/login_page"><button class="nav-btn">Войти</button></a>
+                <a href="/register_page"><button class="nav-btn">Регистрация</button></a>
+            {% endif %}
         </div>
     </div>
 
     <main class="hero">
         <section class="text-block">
             <h1>Точный подбор обуви под ваши стопы</h1>
-            <p>Мы специализируемся на подборе обуви как для повседневной жизни и спотра, так и для сложных случаев: высокий подъём, плоскостопие, широкий или узкий тип стопы.</p>
+            <p>Мы специализируемся на подборе обуви как для повседневной жизни и спорта, так и для сложных случаев: высокий подъём, плоскостопие, широкий или узкий тип стопы.</p>
             <div class="actions">
-                <button class="primary" onclick="window.location.href='{{ url_for('measure') }}'">Начать</button>
+                {% if session.user_logged_in %}
+                    <button class="primary" onclick="window.location.href='/measure'">Ввести данные</button>
+                {% else %}
+                    <button class="primary" onclick="window.location.href='/register_page'">Начать</button>
+                {% endif %}
             </div>
         </section>
 

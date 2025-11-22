@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — SneakerFit</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="main-content">
+    <div class="container">
+        <div class="card">
+            <h1>Вход 👋</h1>
+            <p class="subtitle">Войдите в свой аккаунт</p>
+
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="login-email">Email *</label>
+                    <input type="email" id="login-email" name="email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">Пароль *</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <span id="loginBtnText">Войти</span>
+                    <div id="loginSpinner" class="spinner" style="display: none;"></div>
+                </button>
+            </form>
+
+            <div class="divider">
+                <span>или</span>
+            </div>
+
+            <p style="text-align: center;">
+                Нет аккаунта? <a href="{{ url_for('register_page') }}">Зарегистрируйтесь</a>
+            </p>
+
+            <div id="message" class="message"></div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<footer class="global-footer">
+    <p>by SneakerFit team © 2025</p>
+</footer>
+</body>
+</html>

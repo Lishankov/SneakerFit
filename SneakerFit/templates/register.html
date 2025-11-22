@@ -3,67 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация и Вход</title>
+    <title>Регистрация — SneakerFit</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 <div class="main-content">
     <div class="container">
         <div class="card">
-            <h1>Добро пожаловать! 👋</h1>
-            <p class="subtitle">Зарегистрируйтесь или войдите в систему</p>
+            <h1>Регистрация 👋</h1>
+            <p class="subtitle">Создайте новый аккаунт</p>
 
-            <div id="register-tab" class="tab-content active">
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label for="reg-username">Имя пользователя *</label>
-                        <input type="text" id="reg-username" name="username" required minlength="3">
-                        <span class="error" id="reg-usernameError"></span>
-                    </div>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label for="reg-username">Имя пользователя *</label>
+                    <input type="text" id="reg-username" name="username" required minlength="3">
+                </div>
 
-                    <div class="form-group">
-                        <label for="reg-email">Email *</label>
-                        <input type="email" id="reg-email" name="email" required>
-                        <span class="error" id="reg-emailError"></span>
-                    </div>
+                <div class="form-group">
+                    <label for="reg-email">Email *</label>
+                    <input type="email" id="reg-email" name="email" required>
+                </div>
 
-                    <div class="form-group">
-                        <label for="reg-password">Пароль *</label>
-                        <input type="password" id="reg-password" name="password" required minlength="6">
-                        <span class="error" id="reg-passwordError"></span>
-                    </div>
+                <div class="form-group">
+                    <label for="reg-password">Пароль *</label>
+                    <input type="password" id="reg-password" name="password" required minlength="6">
+                </div>
 
-                    <button type="submit" class="btn btn-primary" id="registerBtn">
-                        <span id="registerBtnText">Зарегистрироваться</span>
-                        <div id="registerSpinner" class="spinner" style="display: none;"></div>
-                    </button>
-                </form>
-            </div>
+                <button type="submit" class="btn btn-primary" id="registerBtn">
+                    <span id="registerBtnText">Зарегистрироваться</span>
+                    <div id="registerSpinner" class="spinner" style="display: none;"></div>
+                </button>
+            </form>
 
-             <div class="divider">
+            <div class="divider">
                 <span>или</span>
             </div>
 
-            <div id="login-tab" class="tab-content">
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="login-email">Email *</label>
-                        <input type="email" id="login-email" name="email" required>
-                        <span class="error" id="login-emailError"></span>
-                    </div>
+            <p style="text-align: center;">
+                Уже есть аккаунт? <a href="{{ url_for('login_page') }}">Войдите</a>
+            </p>
 
-                    <div class="form-group">
-                        <label for="login-password">Пароль *</label>
-                        <input type="password" id="login-password" name="password" required>
-                        <span class="error" id="login-passwordError"></span>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary" id="loginBtn">
-                        <span id="loginBtnText">Войти</span>
-                        <div id="loginSpinner" class="spinner" style="display: none;"></div>
-                    </button>
-                </form>
-            </div>
             <div id="message" class="message"></div>
         </div>
     </div>

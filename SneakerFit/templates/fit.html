@@ -218,8 +218,14 @@
     </div>
 
     <div class="right-menu">
-        <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
-        <a href="/profile"><button class="nav-btn">Профиль</button></a>
+        {% if session.user_logged_in %}
+            <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
+            <a href="/profile"><button class="nav-btn">Профиль</button></a>
+            <a href="/logout"><button class="nav-btn">Выйти</button></a>
+        {% else %}
+            <a href="/login_page"><button class="nav-btn">Войти</button></a>
+            <a href="/register_page"><button class="nav-btn">Регистрация</button></a>
+        {% endif %}
     </div>
 </div>
 
@@ -231,7 +237,7 @@
                 На основе ваших измерений стопы
             </p>
 
-            <div class="filter-section">
+            <div class="filter-section" style="display: none;">
                 <div class="filter-row">
                     <div class="filter-group">
                         <label for="compatibilityFilter">Совместимость</label>
@@ -245,7 +251,6 @@
                             <option value="0">0% и выше</option>
                         </select>
                     </div>
-
                     <div class="filter-group">
                         <label for="sortFilter">Сортировка</label>
                         <select id="sortFilter" class="filter-select">

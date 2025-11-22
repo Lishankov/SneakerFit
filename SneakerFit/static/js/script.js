@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
     initializeForms();
-    initializeAvatarPreview();
 });
 
 function initializeForms() {
@@ -15,28 +14,17 @@ function initializeForms() {
     }
 }
 
-function initializeAvatarPreview() {
-    const avatarInput = document.getElementById('avatarInput');
-    if (avatarInput) {
-        avatarInput.addEventListener('change', function(evt) {
-            const file = evt.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('avatarPreview');
-                if (img) img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-}
-
 async function handleRegister(e) {
     e.preventDefault();
     const btn = document.getElementById('registerBtn');
     const btnText = document.getElementById('registerBtnText');
     const spinner = document.getElementById('registerSpinner');
     const messageEl = document.getElementById('message');
+
+    if (!btn || !btnText || !spinner || !messageEl) {
+        console.error('Register elements not found');
+        return;
+    }
 
     btnText.style.display = 'none';
     spinner.style.display = 'inline-block';
@@ -45,18 +33,31 @@ async function handleRegister(e) {
 
     try {
         const formData = new FormData(this);
-        const r = await fetch('/register', { method:'POST', body: formData });
-        const result = await r.json();
+        
+        const response = await fetch('/register', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
         if (result.success) {
             messageEl.innerHTML = `<div class="success">${result.message}</div>`;
             messageEl.style.display = 'block';
-            setTimeout(()=> { window.location.href = result.redirect; }, 1000);
+            setTimeout(() => {
+                window.location.href = result.redirect || '/';
+            }, 1000);
         } else {
             messageEl.innerHTML = `<div class="error">${result.message}</div>`;
             messageEl.style.display = 'block';
         }
-    } catch (err) {
-        messageEl.innerHTML = `<div class="error">Ошибка сети</div>`;
+    } catch (error) {
+        console.error('Register error:', error);
+        messageEl.innerHTML = `<div class="error">Ошибка сети: ${error.message}</div>`;
         messageEl.style.display = 'block';
     } finally {
         btnText.style.display = 'inline-block';
@@ -72,6 +73,11 @@ async function handleLogin(e) {
     const spinner = document.getElementById('loginSpinner');
     const messageEl = document.getElementById('message');
 
+    if (!btn || !btnText || !spinner || !messageEl) {
+        console.error('Login elements not found');
+        return;
+    }
+
     btnText.style.display = 'none';
     spinner.style.display = 'inline-block';
     btn.disabled = true;
@@ -79,18 +85,31 @@ async function handleLogin(e) {
 
     try {
         const formData = new FormData(this);
-        const r = await fetch('/login', { method:'POST', body: formData });
-        const result = await r.json();
+        
+        const response = await fetch('/login', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        
         if (result.success) {
-            messageEl.innerHTML = `<div class="success">${result.message || 'Вход'}</div>`;
+            messageEl.innerHTML = `<div class="success">${result.message || 'Вход успешен'}</div>`;
             messageEl.style.display = 'block';
-            setTimeout(()=> window.location.href = result.redirect || '/welcome', 700);
+            setTimeout(() => {
+                window.location.href = result.redirect || '/';
+            }, 700);
         } else {
             messageEl.innerHTML = `<div class="error">${result.message}</div>`;
             messageEl.style.display = 'block';
         }
-    } catch (err) {
-        messageEl.innerHTML = `<div class="error">Ошибка сети</div>`;
+    } catch (error) {
+        console.error('Login error:', error);
+        messageEl.innerHTML = `<div class="error">Ошибка сети: ${error.message}</div>`;
         messageEl.style.display = 'block';
     } finally {
         btnText.style.display = 'inline-block';
@@ -98,3 +117,28 @@ async function handleLogin(e) {
         btn.disabled = false;
     }
 }
+
+// Добавим стили для сообщений
+const style = document.createElement('style');
+style.textContent = `
+    .success {
+        color: #4CAF50;
+        background: #E8F5E8;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    .error {
+        color: #f44336;
+        background: #FFEBEE;
+        padding: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        text-align: center;
+    }
+    .message {
+        margin-top: 15px;
+    }
+`;
+document.head.appendChild(style);
