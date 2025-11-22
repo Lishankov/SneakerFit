@@ -31,7 +31,7 @@
     },
     {
       "model": "Puma Rebound LayUp",
-      "sport": 1,
+      "sport": 0,
       "sizes": [
         {"eu": 35, "length": 215, "toeCircumference": 202.1, "midfootCircumference": 202.1, "ankleCircumference": 219.3, "obliqueCircumference": 279.5},
         {"eu": 35.5, "length": 220, "toeCircumference": 206.8, "midfootCircumference": 206.8, "ankleCircumference": 224.4, "obliqueCircumference": 286},

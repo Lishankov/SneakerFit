@@ -54,7 +54,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
         try:
             user_length = float(user_data['foot_length']) * 10
             shoe_length = shoe_size['length']
-            user_length += 4 if is_sport == 1 else 6
+            user_length += 10 if is_sport == 1 else 15
             length_diff = abs(user_length - shoe_length)
             if length_diff <= 3: length_score = 45
             elif length_diff <= 7: length_score = 40
@@ -63,7 +63,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             elif length_diff <= 22: length_score = 15
             else: length_score = 5
             compatibility += length_score
-            factors += 45
+            factors += 46
         except ValueError:
             pass
 
@@ -71,6 +71,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
         try:
             user_width = float(user_data['foot_width']) * 10
             estimated_midfoot = 2 * (user_width + 50) * 0.9
+            user_width += 10 if is_sport == 1 else 15
             shoe_midfoot = shoe_size['midfootCircumference']
             width_diff = abs(estimated_midfoot - shoe_midfoot)
             if width_diff <= 15: width_score = 35
@@ -80,7 +81,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             elif width_diff <= 55: width_score = 10
             else: width_score = 5
             compatibility += width_score
-            factors += 35
+            factors += 29
         except ValueError:
             pass
 
@@ -88,6 +89,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
         try:
             user_oblique = float(user_data['oblique_circumference']) * 10
             shoe_oblique = shoe_size['obliqueCircumference']
+            user_oblique += 10 if is_sport == 1 else 15
             oblique_diff = abs(user_oblique - shoe_oblique)
             if oblique_diff <= 10: oblique_score = 15
             elif oblique_diff <= 20: oblique_score = 12
@@ -95,7 +97,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             elif oblique_diff <= 40: oblique_score = 5
             else: oblique_score = 2
             compatibility += oblique_score
-            factors += 15
+            factors += 17
         except ValueError:
             pass
 
@@ -111,9 +113,9 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
         else:
             foot_type_score = 4
         compatibility += foot_type_score
-        factors += 5
+        factors += 8
 
-    final_compatibility = min(100, int(compatibility * 100 / factors)) if factors > 0 else 0
+    final_compatibility = min(98, int(compatibility * 100 / factors)) if factors > 0 else 0
 
     if has_length:
         user_length = float(user_data['foot_length']) * 10
