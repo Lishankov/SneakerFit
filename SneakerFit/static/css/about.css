@@ -1,0 +1,14 @@
+.about-content {
+  margin: 50px 25px;
+}
+
+.team-member {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.team-description {
+  margin: 10px 0 75px 0;
+  line-height: 1.6;
+}
