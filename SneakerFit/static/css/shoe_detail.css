@@ -267,3 +267,62 @@
         padding: 6px;
     }
 }
+/*--------------------Темы--------------------*/
+[data-theme="soft"] .compatibility-bar,
+[data-theme="dark"] .compatibility-bar {
+    background: var(--border-color);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="soft"] .size-table,
+[data-theme="dark"] .size-table {
+    color: var(--text-color);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="soft"] .size-table th,
+[data-theme="dark"] .size-table th {
+    background: var(--card-bg);
+}
+
+[data-theme="soft"] .size-table td,
+[data-theme="dark"] .size-table td {
+    border-color: var(--border-color);
+}
+
+[data-theme="soft"] .best-match,
+[data-theme="dark"] .best-match {
+    background: var(--accent-color);
+    opacity: 0.1;
+}
+.shoe-detail-container p {
+    color: var(--text-color) !important;
+    opacity: 0.9;
+}
+
+.size-table th,
+.size-table td {
+    color: var(--text-color) !important;
+}
+
+.size-table th {
+    background: var(--card-bg);
+    font-weight: 600;
+}
+
+.info-section h1,
+.info-section h2,
+.info-section h3 {
+    color: var(--text-color);
+}
+
+/* Текст в таблице размеров */
+.size-table strong {
+    color: var(--text-color);
+}
+
+/* Текст в блоке рекомендаций */
+.info-section > div:first-child p {
+    color: var(--text-color) !important;
+    opacity: 0.8;
+}

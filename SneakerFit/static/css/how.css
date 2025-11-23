@@ -21,3 +21,26 @@
 .how-content a:hover {
   text-decoration: underline;
 }
+.card h1 {
+    color: var(--text-color);
+}
+
+.team-member,
+.step-title {
+    color: var(--text-color);
+}
+
+.team-description,
+.step-description {
+    color: var(--text-color);
+    opacity: 0.9;
+}
+
+.card ol,
+.card ul {
+    color: var(--text-color);
+}
+
+.card a {
+    color: var(--accent-color);
+}

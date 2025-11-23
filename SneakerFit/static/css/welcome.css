@@ -79,3 +79,20 @@
   border-top: 1px solid #eee;
   color: #666;
 }
+.welcome-subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.info-content p {
+    color: var(--text-color);
+}
+
+.info-content strong {
+    color: var(--text-color);
+}
+
+.welcome-footer p {
+    color: var(--text-color);
+    opacity: 0.8;
+}

@@ -30,3 +30,11 @@
   text-align: center;
   display: none;
 }
+.subtitle {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.form-group label {
+    color: var(--text-color);
+}

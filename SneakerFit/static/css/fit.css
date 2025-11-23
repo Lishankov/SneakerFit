@@ -194,3 +194,101 @@
 .filter-group button {
     white-space: nowrap;
 }
+
+/*------------Темы---------------*/
+[data-theme="soft"] .filter-section,
+[data-theme="dark"] .filter-section {
+    background: var(--card-bg);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="soft"] .shoe-card,
+[data-theme="dark"] .shoe-card {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="soft"] .shoe-image,
+[data-theme="dark"] .shoe-image {
+    background: var(--input-bg);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-theme="soft"] .shoe-model,
+[data-theme="dark"] .shoe-model {
+    color: var(--text-color);
+}
+
+[data-theme="soft"] .size-info,
+[data-theme="dark"] .size-info {
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+[data-theme="soft"] .no-recommendations,
+[data-theme="dark"] .no-recommendations {
+    color: var(--text-color);
+}
+
+[data-theme="soft"] .loading-container,
+[data-theme="dark"] .loading-container {
+    color: var(--text-color);
+}
+
+[data-theme="soft"] .filter-select,
+[data-theme="dark"] .filter-select {
+    background: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+.results-count {
+    color: var(--text-color) !important;
+    opacity: 0.9;
+    font-weight: 600;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shoe-model {
+    color: var(--text-color) !important;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.size-info {
+    color: var(--text-color) !important;
+    opacity: 0.8;
+    transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-group label {
+    color: var(--text-color) !important;
+    font-weight: 600;
+}
+
+/* Текст в карточках */
+.shoe-card {
+    color: var(--text-color);
+}
+
+.shoe-card .compatibility-badge {
+    color: white !important; /* Белый текст на цветном фоне */
+}
+
+.shoe-type-badge {
+    color: white !important; /* Белый текст на цветном фоне */
+}
+
+/* Заголовки в фильтрах */
+.filter-section {
+    color: var(--text-color);
+}
+
+/* Текст в выпадающих списках */
+.filter-select {
+    color: var(--text-color);
+}
+
+.filter-select option {
+    background: var(--card-bg);
+    color: var(--text-color);
+}

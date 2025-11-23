@@ -21,6 +21,9 @@
     </div>
 
     <div class="right-menu">
+        <button id="themeSwitcher" class="theme-switcher">
+            <span id="themeIcon" class="theme-icon">☀</span>
+        </button>
         <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
         <a href="/logout"><button class="nav-btn">Выйти</button></a>
     </div>
@@ -98,10 +101,11 @@
     </div>
 </div>
 <div class="main-content">
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="{{ url_for('static', filename='js/theme-switcher.js') }}"></script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 <footer class="global-footer">
     <p>by SneakerFit team © 2025</p>
 </footer>
+
 </body>
 </html>
