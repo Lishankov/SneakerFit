@@ -16,16 +16,22 @@ def user_exists(email):
 
 
 def save_user(user_data):
+    """Существующая функция - оставляем для обратной совместимости"""
+    return save_user_with_verification(user_data)
+
+
+def save_user_with_verification(user_data):
+    """Сохраняет пользователя с неподтвержденным email"""
     conn = get_connection()
     cursor = conn.cursor()
     try:
-        print(f"Attempting to save user: {user_data.get('username')}, {user_data.get('email')}")
+        print(f"Attempting to save user with verification: {user_data.get('username')}, {user_data.get('email')}")
 
         cursor.execute("""
             INSERT INTO users 
             (username, email, password, registration_date, registration_type, subscription,
-             foot_length, foot_width, arch, oblique_circumference, foot_type, avatar, about)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             foot_length, foot_width, arch, oblique_circumference, foot_type, avatar, about, email_verified)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             user_data.get('username', ''),
             user_data.get('email', ''),
@@ -39,14 +45,51 @@ def save_user(user_data):
             None,  # oblique_circumference
             None,  # foot_type
             None,  # avatar
-            ''  # about
+            '',  # about
+            False  # email_verified
         ))
         conn.commit()
-        print(f"User {user_data.get('email')} saved successfully")
+        print(f"User {user_data.get('email')} saved with unverified email")
         return True
     except Exception as e:
         print(f"Error saving user: {e}")
         conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def verify_user_email(email):
+    """Подтверждает email пользователя"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            UPDATE users
+            SET email_verified = ?
+            WHERE email = ?
+        """, (True, email))
+        conn.commit()
+        print(f"Email verified for user: {email}")
+        return cursor.rowcount > 0
+    except Exception as e:
+        print(f"Error verifying email: {e}")
+        conn.rollback()
+        return False
+    finally:
+        conn.close()
+
+
+def is_email_verified(email):
+    """Проверяет, подтвержден ли email"""
+    conn = get_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("SELECT email_verified FROM users WHERE email = ?", (email,))
+        row = cursor.fetchone()
+        return row and row['email_verified'] == 1
+    except Exception as e:
+        print(f"Error checking email verification: {e}")
         return False
     finally:
         conn.close()

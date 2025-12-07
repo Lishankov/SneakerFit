@@ -5,19 +5,37 @@ import re
 from werkzeug.utils import secure_filename
 import random
 import json
+import string
+from flask_mail import Mail, Message
+from dotenv import load_dotenv
+from functools import wraps
 from database import setup_db, get_connection
 from user_service import (
-    user_exists, save_user, get_user_by_email,
+    user_exists, save_user_with_verification, get_user_by_email,
     update_user_measurements, update_user_profile,
-    update_user_nickname, get_all_users
+    update_user_nickname, get_all_users, verify_user_email, is_email_verified
 )
 
+# Загружаем переменные окружения
+load_dotenv()
+
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-123456789'
+app.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-123456789')
+
+# Конфигурация почты
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
+
+mail = Mail(app)
 
 AVATARS_DIR = os.path.join('static', 'avatars')
 ALLOWED_EXT = {'png', 'jpg', 'jpeg', 'gif'}
 USERS_DB = 'users.db'
+
 
 # ------------------ Инициализация ------------------
 
@@ -25,14 +43,61 @@ def ensure_storage():
     if not os.path.exists(AVATARS_DIR):
         os.makedirs(AVATARS_DIR, exist_ok=True)
 
+
 setup_db()
 ensure_storage()
+
 
 # ------------------ Вспомогательные функции ------------------
 
 def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
+
+
+# Временное хранилище для кодов подтверждения и паролей
+pending_registrations = {}
+
+
+def send_verification_code(email, username):
+    """Отправляет код подтверждения на email"""
+    try:
+        # Генерируем 5-значный код
+        code = ''.join(random.choices(string.digits, k=5))
+
+        # Сохраняем во временном хранилище
+        pending_registrations[email] = {
+            'code': code,
+            'username': username,
+            'timestamp': datetime.datetime.now(),
+            'verified': False
+        }
+
+        # Создаем email сообщение
+        msg = Message(
+            subject='Подтверждение email - SneakerFit',
+            recipients=[email],
+            body=f'''Приветствуем, {username}!
+
+Ваш код подтверждения: {code}
+
+Введите этот код на сайте для завершения регистрации.
+
+Код действителен в течение 15 минут.
+
+С уважением,
+Команда SneakerFit'''
+        )
+
+        # Отправляем email
+        mail.send(msg)
+        print(f"Код {code} отправлен на {email}")
+        return True
+
+    except Exception as e:
+        print(f"Ошибка отправки email: {e}")
+        return False
+
 
 def load_shoes_database():
     try:
@@ -41,7 +106,9 @@ def load_shoes_database():
     except:
         return {"sneakers": []}
 
+
 def calculate_compatibility(user_data, shoe_size, is_sport=1):
+    # ... существующий код функции calculate_compatibility ...
     compatibility = 0
     factors = 0
 
@@ -56,12 +123,18 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             shoe_length = shoe_size['length']
             user_length += 10 if is_sport == 1 else 15
             length_diff = abs(user_length - shoe_length)
-            if length_diff <= 3: length_score = 45
-            elif length_diff <= 7: length_score = 40
-            elif length_diff <= 12: length_score = 35
-            elif length_diff <= 17: length_score = 25
-            elif length_diff <= 22: length_score = 15
-            else: length_score = 5
+            if length_diff <= 3:
+                length_score = 45
+            elif length_diff <= 7:
+                length_score = 40
+            elif length_diff <= 12:
+                length_score = 35
+            elif length_diff <= 17:
+                length_score = 25
+            elif length_diff <= 22:
+                length_score = 15
+            else:
+                length_score = 5
             compatibility += length_score
             factors += 46
         except ValueError:
@@ -74,12 +147,18 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             user_width += 10 if is_sport == 1 else 15
             shoe_midfoot = shoe_size['midfootCircumference']
             width_diff = abs(estimated_midfoot - shoe_midfoot)
-            if width_diff <= 15: width_score = 35
-            elif width_diff <= 25: width_score = 30
-            elif width_diff <= 35: width_score = 25
-            elif width_diff <= 45: width_score = 18
-            elif width_diff <= 55: width_score = 10
-            else: width_score = 5
+            if width_diff <= 15:
+                width_score = 35
+            elif width_diff <= 25:
+                width_score = 30
+            elif width_diff <= 35:
+                width_score = 25
+            elif width_diff <= 45:
+                width_score = 18
+            elif width_diff <= 55:
+                width_score = 10
+            else:
+                width_score = 5
             compatibility += width_score
             factors += 29
         except ValueError:
@@ -91,11 +170,16 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             shoe_oblique = shoe_size['obliqueCircumference']
             user_oblique += 10 if is_sport == 1 else 15
             oblique_diff = abs(user_oblique - shoe_oblique)
-            if oblique_diff <= 10: oblique_score = 15
-            elif oblique_diff <= 20: oblique_score = 12
-            elif oblique_diff <= 30: oblique_score = 8
-            elif oblique_diff <= 40: oblique_score = 5
-            else: oblique_score = 2
+            if oblique_diff <= 10:
+                oblique_score = 15
+            elif oblique_diff <= 20:
+                oblique_score = 12
+            elif oblique_diff <= 30:
+                oblique_score = 8
+            elif oblique_diff <= 40:
+                oblique_score = 5
+            else:
+                oblique_score = 2
             compatibility += oblique_score
             factors += 17
         except ValueError:
@@ -124,6 +208,7 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
             final_compatibility = min(100, final_compatibility + 5)
 
     return final_compatibility
+
 
 def find_best_matches(user_email):
     user = get_user_by_email(user_email)
@@ -156,12 +241,46 @@ def find_best_matches(user_email):
     recommendations.sort(key=lambda x: x['compatibility'], reverse=True)
     return recommendations[:8]
 
-# ------------------ Роуты(ссылки) ------------------
-@app.route('/shoe/<model_name>')
-def shoe_detail(model_name):
-    if not session.get('user_logged_in'):
-        return redirect('/login_page')
 
+# ------------------ Декораторы для проверки авторизации ------------------
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_logged_in'):
+            return redirect('/login_page')
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+def email_verified_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('user_logged_in'):
+            return redirect('/login_page')
+
+        user_email = session.get('user_email')
+        if not user_email or not is_email_verified(user_email):
+            # Сохраняем URL для редиректа после подтверждения
+            session['redirect_after_verification'] = request.url
+            return redirect('/verify_email_page')
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
+# ------------------ Роуты(ссылки) ------------------
+
+@app.route('/')
+def first():
+    return render_template('first_page.html')
+
+
+@app.route('/shoe/<model_name>')
+@email_verified_required
+def shoe_detail(model_name):
     shoes_db = load_shoes_database()
     shoe = None
     for s in shoes_db['sneakers']:
@@ -196,9 +315,6 @@ def shoe_detail(model_name):
                            sizes=sizes_compatibility,
                            user=user)
 
-@app.route('/')
-def first():
-    return render_template('first_page.html')
 
 @app.route('/get_shoe_type')
 def get_shoe_type():
@@ -212,71 +328,28 @@ def get_shoe_type():
 
     return jsonify({'shoeType': 'sport'})
 
+
+# ------------------ Регистрация и подтверждение email ------------------
+
 @app.route('/register_page')
 def register_page():
     if session.get('user_logged_in'):
         return redirect('/')
     return render_template('register.html')
 
+
+@app.route('/verify_email_page')
+def verify_email_page():
+    if not session.get('user_logged_in') and 'pending_email' not in session:
+        return redirect('/register_page')
+    return render_template('verify_email.html')
+
+
 @app.route('/login_page')
 def login_page():
     if session.get('user_logged_in'):
         return redirect('/')
     return render_template('login.html')
-
-@app.route('/login')
-def login_redirect():
-    return redirect('/login_page')
-
-
-@app.route('/register', methods=['POST'])
-def register():
-    try:
-        username = request.form.get('username', '').strip()
-        email = request.form.get('email', '').strip()
-        password = request.form.get('password', '').strip()
-
-        print(f"Registration attempt: {username}, {email}")  # Debug log
-
-        if not username or not email or not password:
-            return jsonify({'success': False, 'message': 'Все поля обязательны'})
-        if len(username) < 3:
-            return jsonify({'success': False, 'message': 'Имя слишком короткое'})
-        if not is_valid_email(email):
-            return jsonify({'success': False, 'message': 'Неверный email'})
-        if len(password) < 6:
-            return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
-
-        # Проверяем существование пользователя
-        if user_exists(email):
-            return jsonify({'success': False, 'message': 'Пользователь уже существует'})
-
-        # Сохраняем пользователя
-        success = save_user({
-            'username': username,
-            'email': email,
-            'password': password,
-            'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-            'registration_type': 'form'
-        })
-
-        if not success:
-            return jsonify({'success': False, 'message': 'Ошибка при сохранении пользователя'})
-
-        # Устанавливаем сессию
-        session['user_logged_in'] = True
-        session['user_email'] = email
-        session['user_name'] = username
-
-        return jsonify({
-            'success': True,
-            'message': 'Регистрация успешна',
-            'redirect': '/'
-        })
-
-    except Exception as e:
-        print(f"Error in register: {e}")
-        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
 
 
 @app.route('/login', methods=['POST'])
@@ -285,13 +358,10 @@ def login():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
 
-        print(f"Login attempt: {email}")  # Debug log
-
         if not email or not password:
             return jsonify({'success': False, 'message': 'Введите email и пароль'})
 
         user = get_user_by_email(email)
-        print(f"User found: {user}")  # Debug log
 
         if not user:
             return jsonify({'success': False, 'message': 'Пользователь не найден'})
@@ -299,6 +369,22 @@ def login():
         # Сравниваем пароли
         if user['password'] != password:
             return jsonify({'success': False, 'message': 'Неверный пароль'})
+
+        # Проверяем подтверждение email
+        if not user.get('email_verified'):
+            # Сохраняем данные для подтверждения
+            session['pending_email'] = email
+            session['pending_username'] = user['username']
+            session['pending_password'] = password
+
+            # Отправляем код подтверждения
+            send_verification_code(email, user['username'])
+
+            return jsonify({
+                'success': True,
+                'message': 'Email не подтвержден. Код отправлен на почту.',
+                'redirect': '/verify_email_page'
+            })
 
         # Устанавливаем сессию
         session['user_logged_in'] = True
@@ -315,22 +401,183 @@ def login():
         print(f"Error in login: {e}")
         return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
 
+
+@app.route('/register', methods=['POST'])
+def register():
+    try:
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '').strip()
+
+        print(f"Registration attempt: {username}, {email}")
+
+        if not username or not email or not password:
+            return jsonify({'success': False, 'message': 'Все поля обязательны'})
+        if len(username) < 3:
+            return jsonify({'success': False, 'message': 'Имя слишком короткое'})
+        if not is_valid_email(email):
+            return jsonify({'success': False, 'message': 'Неверный email'})
+        if len(password) < 6:
+            return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
+
+        # Проверяем существование пользователя
+        if user_exists(email):
+            return jsonify({'success': False, 'message': 'Пользователь уже существует'})
+
+        # Отправляем код подтверждения
+        if not send_verification_code(email, username):
+            return jsonify({'success': False, 'message': 'Ошибка отправки кода подтверждения'})
+
+        # Сохраняем данные в сессии для завершения регистрации
+        session['pending_email'] = email
+        session['pending_username'] = username
+        session['pending_password'] = password
+
+        return jsonify({
+            'success': True,
+            'message': 'Код подтверждения отправлен на email',
+            'redirect': '/verify_email_page'
+        })
+
+    except Exception as e:
+        print(f"Error in register: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
+@app.route('/verify_email', methods=['POST'])
+def verify_email():
+    try:
+        code = request.form.get('code', '').strip()
+
+        if not code:
+            return jsonify({'success': False, 'message': 'Введите код подтверждения'})
+
+        # Получаем данные из сессии
+        email = session.get('pending_email')
+        username = session.get('pending_username')
+        password = session.get('pending_password')
+
+        if not email or not username:
+            return jsonify({'success': False, 'message': 'Сессия истекла. Начните регистрацию заново.'})
+
+        # Проверяем код
+        if email not in pending_registrations:
+            return jsonify({'success': False, 'message': 'Код не найден или истек'})
+
+        verification_data = pending_registrations[email]
+
+        # Проверяем срок действия кода (15 минут)
+        time_diff = datetime.datetime.now() - verification_data['timestamp']
+        if time_diff.total_seconds() > 900:  # 15 минут
+            del pending_registrations[email]
+            return jsonify({'success': False, 'message': 'Код истек. Запросите новый.'})
+
+        # Проверяем код
+        if verification_data['code'] != code:
+            # Считаем попытки
+            verification_data.setdefault('attempts', 0)
+            verification_data['attempts'] += 1
+
+            if verification_data['attempts'] >= 3:
+                del pending_registrations[email]
+                return jsonify({'success': False, 'message': 'Слишком много попыток. Запросите новый код.'})
+
+            return jsonify({'success': False, 'message': 'Неверный код'})
+
+        # Сохраняем пользователя в БД
+        success = save_user_with_verification({
+            'username': username,
+            'email': email,
+            'password': password,
+            'registration_date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'registration_type': 'form'
+        })
+
+        if not success:
+            return jsonify({'success': False, 'message': 'Ошибка при сохранении пользователя'})
+
+        # Подтверждаем email в БД
+        verify_user_email(email)
+
+        # Устанавливаем сессию
+        session['user_logged_in'] = True
+        session['user_email'] = email
+        session['user_name'] = username
+
+        # Очищаем временные данные
+        del pending_registrations[email]
+        session.pop('pending_email', None)
+        session.pop('pending_username', None)
+        session.pop('pending_password', None)
+
+        # Редирект на сохраненный URL или на главную
+        redirect_url = session.pop('redirect_after_verification', '/')
+
+        return jsonify({
+            'success': True,
+            'message': 'Email успешно подтвержден!',
+            'redirect': redirect_url
+        })
+
+    except Exception as e:
+        print(f"Error in verify_email: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
+@app.route('/resend_verification_code', methods=['POST'])
+def resend_verification_code():
+    """Повторная отправка кода подтверждения"""
+    try:
+        email = session.get('pending_email')
+
+        if not email:
+            return jsonify({'success': False, 'message': 'Сессия истекла'})
+
+        # Проверяем, есть ли незавершенная регистрация
+        if email in pending_registrations:
+            username = session.get('pending_username', 'Пользователь')
+
+            # Проверяем частоту запросов (не чаще 1 раза в 60 секунд)
+            last_send = pending_registrations[email].get('last_resend')
+            if last_send:
+                time_diff = datetime.datetime.now() - last_send
+                if time_diff.total_seconds() < 60:
+                    return jsonify({'success': False, 'message': 'Подождите 60 секунд перед повторной отправкой'})
+
+            # Отправляем новый код
+            send_verification_code(email, username)
+            pending_registrations[email]['last_resend'] = datetime.datetime.now()
+
+            return jsonify({'success': True, 'message': 'Код отправлен повторно'})
+        else:
+            # Если регистрации нет, создаем новую
+            username = session.get('pending_username', 'Пользователь')
+            send_verification_code(email, username)
+            return jsonify({'success': True, 'message': 'Код отправлен'})
+
+    except Exception as e:
+        print(f"Error in resend_verification_code: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
+
+# ------------------ Защищенные маршруты ------------------
+
 @app.route('/profile')
+@email_verified_required
 def profile():
-    if not session.get('user_logged_in'):
-        return redirect('/loggin')
     user = get_user_by_email(session.get('user_email'))
     return render_template('profile.html', user=user)
 
+
 @app.route('/profile_update', methods=['POST'])
+@email_verified_required
 def profile_update():
-    if not session.get('user_logged_in'):
-        return redirect('/loggin')
     email = session.get('user_email')
     about = request.form.get('about', '').strip()
 
@@ -351,10 +598,10 @@ def profile_update():
     update_user_profile(email, about=about if about != '' else '', avatar_path=avatar_web_path)
     return redirect('/profile')
 
+
 @app.route('/nickname_update', methods=['POST'])
+@email_verified_required
 def nickname_update():
-    if not session.get('user_logged_in'):
-        return redirect('/loggin')
     new_name = request.form.get('new_nickname', '').strip()
     if len(new_name) < 3:
         return "Имя слишком короткое"
@@ -364,10 +611,10 @@ def nickname_update():
     session['user_name'] = new_name
     return redirect('/profile')
 
+
 @app.route('/measure', methods=['GET', 'POST'])
+@email_verified_required
 def measure():
-    if not session.get('user_logged_in'):
-        return redirect('/login_page')
     user = get_user_by_email(session.get('user_email'))
     if request.method == 'POST':
         length = request.form.get('length', '').strip()
@@ -394,21 +641,27 @@ def measure():
         return redirect('/profile')
     return render_template('measure.html', user_measurements=user, errors=[])
 
+
 @app.route('/get_recommendations')
+@login_required
 def get_recommendations():
-    if not session.get('user_logged_in'):
-        return jsonify({'error': 'Not logged in'})
+    if not is_email_verified(session.get('user_email')):
+        return jsonify({'error': 'Email not verified', 'redirect': '/verify_email_page'})
+
     recommendations = find_best_matches(session.get('user_email'))
     return jsonify(recommendations)
+
 
 @app.route('/users')
 def view_users():
     users = get_all_users()
-    html = "<h1>Пользователи</h1><table border='1'><tr><th>Имя</th><th>Email</th></tr>"
+    html = "<h1>Пользователи</h1><table border='1'><tr><th>Имя</th><th>Email</th><th>Подтвержден</th></tr>"
     for u in users:
-        html += f"<tr><td>{u['username']}</td><td>{u['email']}</td></tr>"
+        verified = "Да" if u.get('email_verified') else "Нет"
+        html += f"<tr><td>{u['username']}</td><td>{u['email']}</td><td>{verified}</td></tr>"
     html += "</table>"
     return html
+
 
 @app.route('/get_random_shoe')
 def get_random_shoe():
@@ -425,19 +678,36 @@ def get_random_shoe():
         print(f"Error getting random shoe: {e}")
         return jsonify({'error': 'Failed to load shoe data'})
 
+
 # ------------------ Статические страницы ------------------
 
 @app.route("/about")
 def about():
     return render_template("about.html")
 
+
 @app.route("/how")
 def how():
     return render_template("how.html")
 
+
 @app.route("/fit")
+@email_verified_required
 def fit():
     return render_template("fit.html")
+
+
+# ------------------ Обработка ошибок ------------------
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

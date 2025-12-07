@@ -27,7 +27,8 @@ def reset_database():
             oblique_circumference REAL,
             foot_type TEXT,
             avatar TEXT,
-            about TEXT DEFAULT ''
+            about TEXT DEFAULT '',
+            email_verified BOOLEAN DEFAULT FALSE
         )
     """)
 

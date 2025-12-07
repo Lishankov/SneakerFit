@@ -1,0 +1,150 @@
+/* verify_email.css - Стили для страницы подтверждения email */
+
+.code-inputs {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 25px 0;
+}
+
+.code-input {
+    width: 55px;
+    height: 65px;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.code-input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 20, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.code-input.filled {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.05);
+}
+
+.timer {
+    text-align: center;
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 15px;
+    margin: 15px 0;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.timer.expired {
+    color: #ff4444;
+    font-weight: 600;
+}
+
+/* Стили для сообщений */
+.message {
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.message .success {
+    background: rgba(76, 175, 80, 0.1);
+    color: #2E7D32;
+    padding: 12px 20px;
+    border-left: 4px solid #4CAF50;
+    border-radius: 8px;
+}
+
+.message .error {
+    background: rgba(244, 67, 54, 0.1);
+    color: #D32F2F;
+    padding: 12px 20px;
+    border-left: 4px solid #F44336;
+    border-radius: 8px;
+}
+
+/* Стили для кнопки повторной отправки */
+#resendTimer {
+    font-size: 14px;
+    color: var(--text-color);
+    opacity: 0.7;
+    margin-top: 10px;
+}
+
+#resendCountdown {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+/* Анимация для полей ввода */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+.code-input.error {
+    border-color: #F44336;
+    animation: shake 0.5s;
+}
+
+.code-input.success {
+    border-color: #4CAF50;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .code-inputs {
+        gap: 8px;
+    }
+
+    .code-input {
+        width: 45px;
+        height: 55px;
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 400px) {
+    .code-inputs {
+        gap: 6px;
+    }
+
+    .code-input {
+        width: 40px;
+        height: 50px;
+        font-size: 22px;
+    }
+}
+
+/* Темы */
+[data-theme="dark"] .code-input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .code-input:focus {
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .code-input.filled {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+[data-theme="soft"] .code-input {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="soft"] .code-input:focus {
+    background: rgba(0, 0, 0, 0.05);
+}

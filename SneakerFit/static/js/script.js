@@ -142,3 +142,60 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+// Дополнительные функции для работы с email подтверждением
+function handleRegistrationResponse(result, messageEl) {
+    if (result.success) {
+        messageEl.innerHTML = `<div class="success">${result.message}</div>`;
+        messageEl.style.display = 'block';
+        setTimeout(() => {
+            window.location.href = result.redirect || '/';
+        }, 1500);
+    } else {
+        messageEl.innerHTML = `<div class="error">${result.message}</div>`;
+        messageEl.style.display = 'block';
+    }
+}
+
+// Обновите функцию handleRegister в script.js
+async function handleRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('registerBtn');
+    const btnText = document.getElementById('registerBtnText');
+    const spinner = document.getElementById('registerSpinner');
+    const messageEl = document.getElementById('message');
+
+    if (!btn || !btnText || !spinner || !messageEl) {
+        console.error('Register elements not found');
+        return;
+    }
+
+    btnText.style.display = 'none';
+    spinner.style.display = 'inline-block';
+    btn.disabled = true;
+    messageEl.style.display = 'none';
+
+    try {
+        const formData = new FormData(this);
+
+        const response = await fetch('/register', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        handleRegistrationResponse(result, messageEl);
+
+    } catch (error) {
+        console.error('Register error:', error);
+        messageEl.innerHTML = `<div class="error">Ошибка сети: ${error.message}</div>`;
+        messageEl.style.display = 'block';
+    } finally {
+        btnText.style.display = 'inline-block';
+        spinner.style.display = 'none';
+        btn.disabled = false;
+    }
+}
