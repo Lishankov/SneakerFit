@@ -118,7 +118,6 @@ async function handleLogin(e) {
     }
 }
 
-// Добавим стили для сообщений
 const style = document.createElement('style');
 style.textContent = `
     .success {
