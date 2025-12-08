@@ -43,7 +43,6 @@ def ensure_storage():
     if not os.path.exists(AVATARS_DIR):
         os.makedirs(AVATARS_DIR, exist_ok=True)
 
-
 setup_db()
 ensure_storage()
 
@@ -54,50 +53,58 @@ def is_valid_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
 
-
-# Временное хранилище для кодов подтверждения и паролей
 pending_registrations = {}
 
 
-def send_verification_code(email, username):
+def send_verification_code(email, username, msg_text="Подтверждение"):
     """Отправляет код подтверждения на email"""
     try:
-        # Генерируем 5-значный код
         code = ''.join(random.choices(string.digits, k=5))
 
-        # Сохраняем во временном хранилище
         pending_registrations[email] = {
             'code': code,
             'username': username,
             'timestamp': datetime.datetime.now(),
             'verified': False
         }
+        msg = None
+        if msg_text == "Подтверждение":
+            msg = Message(
+                subject='Подтверждение email - SneakerFit',
+                recipients=[email],
+                body=f'''Приветствуем, {username}!
 
-        # Создаем email сообщение
-        msg = Message(
-            subject='Подтверждение email - SneakerFit',
-            recipients=[email],
-            body=f'''Приветствуем, {username}!
+                Ваш код подтверждения: {code}
+            
+                Введите этот код на сайте для завершения регистрации.
+            
+                Код действителен в течение 15 минут.
+            
+                С уважением,
+                Команда SneakerFit'''
+            )
+        elif msg_text == "Смена пароля":
+            msg = Message(
+                subject='Смена пароля - SneakerFit',
+                recipients=[email],
+                body=f'''Приветствуем, {username}!
 
-Ваш код подтверждения: {code}
+                Ваш код подтверждения: {code}
 
-Введите этот код на сайте для завершения регистрации.
+                Введите этот код на сайте для смены пароля.
 
-Код действителен в течение 15 минут.
+                Код действителен в течение 15 минут.
 
-С уважением,
-Команда SneakerFit'''
-        )
-
-        # Отправляем email
+                С уважением,
+                Команда SneakerFit'''
+            )
         mail.send(msg)
         print(f"Код {code} отправлен на {email}")
         return True
 
     except Exception as e:
         print(f"Ошибка отправки email: {e}")
-        return False
-
+        return False #
 
 def load_shoes_database():
     try:
@@ -106,9 +113,7 @@ def load_shoes_database():
     except:
         return {"sneakers": []}
 
-
 def calculate_compatibility(user_data, shoe_size, is_sport=1):
-    # ... существующий код функции calculate_compatibility ...
     compatibility = 0
     factors = 0
 
@@ -358,6 +363,11 @@ def login():
         email = request.form.get('email', '').strip()
         password = request.form.get('password', '').strip()
 
+        print(f"=== DEBUG LOGIN ===")
+        print(f"Email: '{email}'")
+        print(f"Password entered: '{password}'")
+        print(f"Password length: {len(password)}")
+
         if not email or not password:
             return jsonify({'success': False, 'message': 'Введите email и пароль'})
 
@@ -366,18 +376,20 @@ def login():
         if not user:
             return jsonify({'success': False, 'message': 'Пользователь не найден'})
 
-        # Сравниваем пароли
+        print(f"User found: {bool(user)}")
+        if user:
+            print(f"Stored password: '{user['password']}'")
+            print(f"Stored password length: {len(user['password'])}")
+            print(f"Passwords match: {user['password'] == password}")
+
         if user['password'] != password:
             return jsonify({'success': False, 'message': 'Неверный пароль'})
 
-        # Проверяем подтверждение email
         if not user.get('email_verified'):
-            # Сохраняем данные для подтверждения
             session['pending_email'] = email
             session['pending_username'] = user['username']
             session['pending_password'] = password
 
-            # Отправляем код подтверждения
             send_verification_code(email, user['username'])
 
             return jsonify({
@@ -386,7 +398,6 @@ def login():
                 'redirect': '/verify_email_page'
             })
 
-        # Устанавливаем сессию
         session['user_logged_in'] = True
         session['user_email'] = email
         session['user_name'] = user['username']
