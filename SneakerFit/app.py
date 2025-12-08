@@ -419,16 +419,18 @@ def register():
             return jsonify({'success': False, 'message': 'Неверный email'})
         if len(password) < 6:
             return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
-
-        # Проверяем существование пользователя
+        if password == username:
+            return jsonify({'success': False, 'message': 'Пароль не может совпадать с логином'})
+        if password.isdigit():
+            return jsonify({'success': False, 'message': 'Пароль не может состоять только из цифр'})
+        if password.isalpha():
+            return jsonify({'success': False, 'message': 'Пароль не может состоять только из букв'})
         if user_exists(email):
             return jsonify({'success': False, 'message': 'Пользователь уже существует'})
 
-        # Отправляем код подтверждения
         if not send_verification_code(email, username):
             return jsonify({'success': False, 'message': 'Ошибка отправки кода подтверждения'})
 
-        # Сохраняем данные в сессии для завершения регистрации
         session['pending_email'] = email
         session['pending_username'] = username
         session['pending_password'] = password
@@ -452,7 +454,6 @@ def verify_email():
         if not code:
             return jsonify({'success': False, 'message': 'Введите код подтверждения'})
 
-        # Получаем данные из сессии
         email = session.get('pending_email')
         username = session.get('pending_username')
         password = session.get('pending_password')
@@ -460,21 +461,17 @@ def verify_email():
         if not email or not username:
             return jsonify({'success': False, 'message': 'Сессия истекла. Начните регистрацию заново.'})
 
-        # Проверяем код
         if email not in pending_registrations:
             return jsonify({'success': False, 'message': 'Код не найден или истек'})
 
         verification_data = pending_registrations[email]
 
-        # Проверяем срок действия кода (15 минут)
         time_diff = datetime.datetime.now() - verification_data['timestamp']
-        if time_diff.total_seconds() > 900:  # 15 минут
+        if time_diff.total_seconds() > 900:
             del pending_registrations[email]
             return jsonify({'success': False, 'message': 'Код истек. Запросите новый.'})
 
-        # Проверяем код
         if verification_data['code'] != code:
-            # Считаем попытки
             verification_data.setdefault('attempts', 0)
             verification_data['attempts'] += 1
 
@@ -484,7 +481,6 @@ def verify_email():
 
             return jsonify({'success': False, 'message': 'Неверный код'})
 
-        # Сохраняем пользователя в БД
         success = save_user_with_verification({
             'username': username,
             'email': email,
@@ -496,21 +492,17 @@ def verify_email():
         if not success:
             return jsonify({'success': False, 'message': 'Ошибка при сохранении пользователя'})
 
-        # Подтверждаем email в БД
         verify_user_email(email)
 
-        # Устанавливаем сессию
         session['user_logged_in'] = True
         session['user_email'] = email
         session['user_name'] = username
 
-        # Очищаем временные данные
         del pending_registrations[email]
         session.pop('pending_email', None)
         session.pop('pending_username', None)
         session.pop('pending_password', None)
 
-        # Редирект на сохраненный URL или на главную
         redirect_url = session.pop('redirect_after_verification', '/')
 
         return jsonify({
@@ -533,24 +525,20 @@ def resend_verification_code():
         if not email:
             return jsonify({'success': False, 'message': 'Сессия истекла'})
 
-        # Проверяем, есть ли незавершенная регистрация
         if email in pending_registrations:
             username = session.get('pending_username', 'Пользователь')
 
-            # Проверяем частоту запросов (не чаще 1 раза в 60 секунд)
             last_send = pending_registrations[email].get('last_resend')
             if last_send:
                 time_diff = datetime.datetime.now() - last_send
                 if time_diff.total_seconds() < 60:
                     return jsonify({'success': False, 'message': 'Подождите 60 секунд перед повторной отправкой'})
 
-            # Отправляем новый код
             send_verification_code(email, username)
             pending_registrations[email]['last_resend'] = datetime.datetime.now()
 
             return jsonify({'success': True, 'message': 'Код отправлен повторно'})
         else:
-            # Если регистрации нет, создаем новую
             username = session.get('pending_username', 'Пользователь')
             send_verification_code(email, username)
             return jsonify({'success': True, 'message': 'Код отправлен'})
@@ -566,7 +554,7 @@ def logout():
     return redirect('/')
 
 
-# ------------------ Защищенные маршруты ------------------
+# ------------------ Остальные маршруты ------------------
 
 @app.route('/profile')
 @email_verified_required
@@ -695,19 +683,6 @@ def how():
 @email_verified_required
 def fit():
     return render_template("fit.html")
-
-
-# ------------------ Обработка ошибок ------------------
-
-@app.errorhandler(404)
-def page_not_found(e):
-    return render_template('404.html'), 404
-
-
-@app.errorhandler(500)
-def internal_server_error(e):
-    return render_template('500.html'), 500
-
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
