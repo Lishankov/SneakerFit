@@ -9,103 +9,102 @@
 </head>
 <body>
 <div class="main-content">
-<div class="topbar">
-    <a href="/" style="text-decoration: none;">
-        <div class="logo">SneakerFit</div>
-    </a>
+    <div class="topbar">
+        <a href="/" style="text-decoration: none;">
+            <div class="logo">SneakerFit</div>
+        </a>
 
-    <div class="center-menu">
-        <a href="/how"><button class="ghost-btn">Как это работает</button></a>
-        <a href="/fit"><button class="ghost-btn">Подбор</button></a>
-        <a href="/about"><button class="ghost-btn">О нас</button></a>
+        <div class="center-menu">
+            <a href="/how"><button class="ghost-btn">Как это работает</button></a>
+            <a href="/fit"><button class="ghost-btn">Подбор</button></a>
+            <a href="/about"><button class="ghost-btn">О нас</button></a>
+        </div>
+
+        <div class="right-menu">
+            <button id="themeSwitcher" class="theme-switcher">
+                <span id="themeIcon" class="theme-icon">☀</span>
+            </button>
+            <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
+            <a href="/logout"><button class="nav-btn">Выйти</button></a>
+        </div>
     </div>
 
-    <div class="right-menu">
-        <button id="themeSwitcher" class="theme-switcher">
-            <span id="themeIcon" class="theme-icon">☀</span>
-        </button>
-        <a href="/measure"><button class="nav-btn">Ввести данные</button></a>
-        <a href="/logout"><button class="nav-btn">Выйти</button></a>
+
+    <div class="profile-page" style="animation: fadeIn 0.5s ease;">
+        <div class="profile-grid">
+            <aside class="profile-card">
+                <div class="avatar-wrap">
+                    {% if user.avatar %}
+                        <img id="avatarPreview" src="/{{ user.avatar }}" alt="avatar">
+                    {% else %}
+                        <img id="avatarPreview" src="{{ url_for('static', filename='no-avatar.png') }}" alt="avatar">
+                    {% endif %}
+                </div>
+
+                <h2>{{ user.username }}</h2>
+                <button onclick="document.getElementById('nickEdit').style.display='block'" class="btn btn-secondary" style="margin-top:6px;">✏️ Изменить ник</button>
+                <div id="nickEdit" style="display:none; margin-top:10px;">
+                    <form action="{{ url_for('nickname_update') }}" method="POST">
+                        <input type="text" name="new_nickname" placeholder="Новый ник" minlength="3">
+                        <button type="submit" class="btn btn-primary" style="margin-top:6px;">Сохранить</button>
+                    </form>
+                </div>
+
+                <p class="email">{{ user.email }}</p>
+
+                <form id="avatarForm" action="{{ url_for('profile_update') }}" method="POST" enctype="multipart/form-data">
+                    <label class="fake-file">
+                        Загрузить аватар
+                        <input id="avatarInput" type="file" name="avatar" accept="image/*">
+                    </label>
+
+                    <button type="submit" class="btn btn-primary" style="width:100%; margin-top:12px;">Сохранить аватар / О себе</button>
+                </form>
+
+                <p class="registered">Дата регистрации: <br> <strong>{{ user.registration_date }}</strong></p>
+            </aside>
+
+            <main class="profile-main">
+                <p style="margin-bottom:8px; color:#555;">{{ user.about or "Пока ничего не написано..." }}</p>
+                <section class="about">
+                    <h3>О себе</h3>
+                    <form id="aboutForm" action="{{ url_for('profile_update') }}" method="POST">
+                        <textarea name="about" id="aboutTextarea" rows="6" placeholder="Напишите о себе...">{{ user.about }}</textarea>
+                        <div style="display:flex; gap:12px; margin-top:10px;">
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                            <a href="{{ url_for('measure') }}" class="btn btn-secondary">Обновить измерения</a>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="measurements" style="margin-top:18px;">
+                    <h3>Мои измерения</h3>
+                    <div class="measure-row">
+                        <div><strong>Длина:</strong> {{ user.foot_length or '-' }} см</div>
+                        <div><strong>Ширина:</strong> {{ user.foot_width or '-' }} см</div>
+                        <div><strong>Косой обхват:</strong> {{ user.oblique_circumference or '-' }} см</div>
+                        <div><strong>Тип:</strong> {{ user.foot_type or '-' }}</div>
+                        <p><strong>Подписка:</strong> {{ 'Активна' if user.subscription else 'Нет' }}</p>
+                    </div>
+                </section>
+
+                <section class="recommendations" style="margin-top:26px;">
+                    <h3>Рекомендации</h3>
+                    <div id="profile-recommendations">
+                        <div style="text-align: center; padding: 20px;">
+                            <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>
+                            <p style="margin-top: 10px; color: #666;">Загружаем рекомендации...</p>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
     </div>
 </div>
-
-
-<div class="profile-page" style="animation: fadeIn 0.5s ease;">
-    <div class="profile-grid">
-        <aside class="profile-card">
-            <div class="avatar-wrap">
-                {% if user.avatar %}
-                    <img id="avatarPreview" src="/{{ user.avatar }}" alt="avatar">
-                {% else %}
-                    <img id="avatarPreview" src="{{ url_for('static', filename='no-avatar.png') }}" alt="avatar">
-                {% endif %}
-            </div>
-
-            <h2>{{ user.username }}</h2>
-            <button onclick="document.getElementById('nickEdit').style.display='block'" class="btn btn-secondary" style="margin-top:6px;">✏️ Изменить ник</button>
-            <div id="nickEdit" style="display:none; margin-top:10px;">
-                <form action="{{ url_for('nickname_update') }}" method="POST">
-                    <input type="text" name="new_nickname" placeholder="Новый ник" minlength="3">
-                    <button type="submit" class="btn btn-primary" style="margin-top:6px;">Сохранить</button>
-                </form>
-            </div>
-
-            <p class="email">{{ user.email }}</p>
-
-            <form id="avatarForm" action="{{ url_for('profile_update') }}" method="POST" enctype="multipart/form-data">
-                <label class="fake-file">
-                    Загрузить аватар
-                    <input id="avatarInput" type="file" name="avatar" accept="image/*">
-                </label>
-
-                <button type="submit" class="btn btn-primary" style="width:100%; margin-top:12px;">Сохранить аватар / О себе</button>
-            </form>
-
-            <p class="registered">Дата регистрации: <br> <strong>{{ user.registration_date }}</strong></p>
-        </aside>
-
-        <main class="profile-main">
-            <p style="margin-bottom:8px; color:#555;">{{ user.about or "Пока ничего не написано..." }}</p>
-            <section class="about">
-                <h3>О себе</h3>
-                <form id="aboutForm" action="{{ url_for('profile_update') }}" method="POST">
-                    <textarea name="about" id="aboutTextarea" rows="6" placeholder="Напишите о себе...">{{ user.about }}</textarea>
-                    <div style="display:flex; gap:12px; margin-top:10px;">
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
-                        <a href="{{ url_for('measure') }}" class="btn btn-secondary">Обновить измерения</a>
-                    </div>
-                </form>
-            </section>
-
-            <section class="measurements" style="margin-top:18px;">
-                <h3>Мои измерения</h3>
-                <div class="measure-row">
-                    <div><strong>Длина:</strong> {{ user.foot_length or '-' }} см</div>
-                    <div><strong>Ширина:</strong> {{ user.foot_width or '-' }} см</div>
-                    <div><strong>Косой обхват:</strong> {{ user.oblique_circumference or '-' }} см</div>
-                    <div><strong>Тип:</strong> {{ user.foot_type or '-' }}</div>
-                    <p><strong>Подписка:</strong> {{ 'Активна' if user.subscription else 'Нет' }}</p>
-                </div>
-            </section>
-
-            <section class="recommendations" style="margin-top:26px;">
-                <h3>Рекомендации</h3>
-                <div id="profile-recommendations">
-                    <div style="text-align: center; padding: 20px;">
-                        <div class="spinner" style="width: 20px; height: 20px; margin: 0 auto;"></div>
-                        <p style="margin-top: 10px; color: #666;">Загружаем рекомендации...</p>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-</div>
-<div class="main-content">
 <script src="{{ url_for('static', filename='js/theme-switcher.js') }}"></script>
 <script src="{{ url_for('static', filename='js/profile.js') }}"></script>
 <footer class="global-footer">
     <p>by SneakerFit team © 2025</p>
 </footer>
-
 </body>
 </html>
