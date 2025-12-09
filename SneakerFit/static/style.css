@@ -524,3 +524,27 @@ input[type="number"], textarea, select {
 [data-theme="soft"] .size-info {
     color: #2d3748 !important;
 }
+
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+.password-wrapper input {
+    padding-right: 40px;
+    width: 100%;
+}
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #000000;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+}
+.toggle-password:hover {
+    color: #333333;
+}

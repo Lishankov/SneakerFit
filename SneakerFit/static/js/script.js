@@ -2,6 +2,18 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeForms();
 });
 
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = '👁‍🗨';
+    } else {
+        input.type = 'password';
+        button.textContent = '👁';
+    }
+}
+
 function initializeForms() {
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
@@ -141,7 +153,7 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
-// Дополнительные функции для работы с email подтверждением
+
 function handleRegistrationResponse(result, messageEl) {
     if (result.success) {
         messageEl.innerHTML = `<div class="success">${result.message}</div>`;
@@ -155,7 +167,6 @@ function handleRegistrationResponse(result, messageEl) {
     }
 }
 
-// Обновите функцию handleRegister в script.js
 async function handleRegister(e) {
     e.preventDefault();
     const btn = document.getElementById('registerBtn');
