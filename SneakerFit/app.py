@@ -16,13 +16,11 @@ from user_service import (
     update_user_nickname, get_all_users, verify_user_email, is_email_verified
 )
 
-# Загружаем переменные окружения
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('FLASK_SECRET_KEY', 'your-secret-key-123456789')
 
-# Конфигурация почты
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() == 'true'
@@ -54,57 +52,79 @@ def is_valid_email(email):
     return re.match(pattern, email) is not None
 
 pending_registrations = {}
+pending_password_resets = {}
 
-
-def send_verification_code(email, username, msg_text="Подтверждение"):
+def send_verification_code(email, username, msg_type="verification"):
     """Отправляет код подтверждения на email"""
     try:
         code = ''.join(random.choices(string.digits, k=5))
 
-        pending_registrations[email] = {
-            'code': code,
-            'username': username,
-            'timestamp': datetime.datetime.now(),
-            'verified': False
-        }
-        msg = None
-        if msg_text == "Подтверждение":
-            msg = Message(
-                subject='Подтверждение email - SneakerFit',
-                recipients=[email],
-                body=f'''Приветствуем, {username}!
+        if msg_type == "verification":
+            pending_registrations[email] = {
+                'code': code,
+                'username': username,
+                'timestamp': datetime.datetime.now(),
+                'verified': False,
+                'attempts': 0
+            }
+            subject = 'Подтверждение email - SneakerFit'
+            body = f'''Приветствуем, {username}!
 
-                Ваш код подтверждения: {code}
+            Ваш код подтверждения: {code}
             
-                Введите этот код на сайте для завершения регистрации.
+            Введите этот код на сайте для завершения регистрации.
             
-                Код действителен в течение 15 минут.
+            Код действителен в течение 15 минут.
             
-                С уважением,
-                Команда SneakerFit'''
-            )
-        elif msg_text == "Смена пароля":
-            msg = Message(
-                subject='Смена пароля - SneakerFit',
-                recipients=[email],
-                body=f'''Приветствуем, {username}!
+            С уважением,
+            Команда SneakerFit'''
+        elif msg_type == "password_reset":
+            pending_password_resets[email] = {
+                'code': code,
+                'timestamp': datetime.datetime.now(),
+                'attempts': 0,
+                'used': False
+            }
+            subject = 'Сброс пароля - SneakerFit'
+            body = f'''Приветствуем, {username}!
 
-                Ваш код подтверждения: {code}
+            Ваш код для сброса пароля: {code}
+            
+            Введите этот код на сайте для создания нового пароля.
+            
+            Код действителен в течение 15 минут.
+            
+            С уважением,
+            Команда SneakerFit'''
 
-                Введите этот код на сайте для смены пароля.
-
-                Код действителен в течение 15 минут.
-
-                С уважением,
-                Команда SneakerFit'''
-            )
+        msg = Message(
+            subject=subject,
+            recipients=[email],
+            body=body
+        )
         mail.send(msg)
         print(f"Код {code} отправлен на {email}")
         return True
 
     except Exception as e:
         print(f"Ошибка отправки email: {e}")
-        return False #
+        return False
+
+def update_user_password(email, new_password):
+    """Обновляет пароль пользователя"""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            'UPDATE users SET password = ? WHERE email = ?',
+            (new_password, email)
+        )
+        conn.commit()
+        conn.close()
+        return True
+    except Exception as e:
+        print(f"Ошибка обновления пароля: {e}")
+        return False
 
 def load_shoes_database():
     try:
@@ -214,7 +234,6 @@ def calculate_compatibility(user_data, shoe_size, is_sport=1):
 
     return final_compatibility
 
-
 def find_best_matches(user_email):
     user = get_user_by_email(user_email)
     if not user:
@@ -267,7 +286,6 @@ def email_verified_required(f):
 
         user_email = session.get('user_email')
         if not user_email or not is_email_verified(user_email):
-            # Сохраняем URL для редиректа после подтверждения
             session['redirect_after_verification'] = request.url
             return redirect('/verify_email_page')
 
@@ -316,9 +334,7 @@ def shoe_detail(model_name):
     sizes_compatibility.sort(key=lambda x: x['compatibility'], reverse=True)
 
     return render_template('shoe_detail.html',
-                           shoe=shoe,
-                           sizes=sizes_compatibility,
-                           user=user)
+                           shoe=shoe, sizes=sizes_compatibility, user=user)
 
 
 @app.route('/get_shoe_type')
@@ -535,10 +551,8 @@ def resend_verification_code():
 
         if not email:
             return jsonify({'success': False, 'message': 'Сессия истекла'})
-
         if email in pending_registrations:
             username = session.get('pending_username', 'Пользователь')
-
             last_send = pending_registrations[email].get('last_resend')
             if last_send:
                 time_diff = datetime.datetime.now() - last_send
@@ -566,6 +580,203 @@ def logout():
 
 
 # ------------------ Остальные маршруты ------------------
+
+@app.route('/change_password_page')
+def change_password_page():
+    """Страница изменения пароля из профиля"""
+    if not session.get('user_logged_in') and not session.get('reset_email'):
+        return redirect('/login_page')
+
+    return render_template('change_password.html')
+
+@app.route('/forgot_password_page')
+def forgot_password_page():
+    """Страница ввода email для сброса пароля"""
+    return render_template('forgot_password.html')
+
+@app.route('/reset_password_page')
+def reset_password_page():
+    """Страница ввода кода подтверждения"""
+    if 'reset_email' not in session:
+        return redirect('/forgot_password_page')
+    return render_template('reset_password.html')
+
+
+@app.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    """Обработка запроса на сброс пароля"""
+    try:
+        email = request.form.get('email', '').strip()
+
+        if not email:
+            return jsonify({'success': False, 'message': 'Введите email'})
+        if not is_valid_email(email):
+            return jsonify({'success': False, 'message': 'Неверный формат email'})
+        user = get_user_by_email(email)
+        if not user:
+            return jsonify({'success': False, 'message': 'Пользователь с таким email не найден'})
+
+        if email in pending_password_resets:
+            time_diff = datetime.datetime.now() - pending_password_resets[email]['timestamp']
+            if time_diff.total_seconds() < 60:
+                return jsonify({
+                    'success': False,
+                    'message': f'Подождите {60 - int(time_diff.total_seconds())} секунд перед повторной отправкой'
+                })
+        if not send_verification_code(email, user['username'], "password_reset"):
+            return jsonify({'success': False, 'message': 'Ошибка отправки кода'})
+
+        session['reset_email'] = email
+        session['reset_username'] = user['username']
+
+        return jsonify({
+            'success': True,
+            'message': 'Код отправлен на ваш email',
+            'redirect': '/reset_password_page'
+        })
+    except Exception as e:
+        print(f"Ошибка в forgot_password: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
+@app.route('/verify_reset_code', methods=['POST'])
+def verify_reset_code():
+    """Проверка кода сброса пароля"""
+    try:
+        code = request.form.get('code', '').strip()
+
+        print(f"=== DEBUG verify_reset_code ===")
+        print(f"Code: {code}")
+        print(f"Session keys: {list(session.keys())}")
+        print(f"Reset email in session: {session.get('reset_email')}")
+        print(f"Reset username in session: {session.get('reset_username')}")
+
+        if not code:
+            return jsonify({'success': False, 'message': 'Введите код подтверждения'})
+
+        email = session.get('reset_email')
+
+        if not email:
+            return jsonify({'success': False, 'message': 'Сессия истекла'})
+
+        if email not in pending_password_resets:
+            return jsonify({'success': False, 'message': 'Код не найден или истек'})
+
+        reset_data = pending_password_resets[email]
+
+        time_diff = datetime.datetime.now() - reset_data['timestamp']
+        if time_diff.total_seconds() > 900:
+            del pending_password_resets[email]
+            return jsonify({'success': False, 'message': 'Код истек. Запросите новый.'})
+
+        if reset_data.get('attempts', 0) >= 4:
+            del pending_password_resets[email]
+            return jsonify({'success': False, 'message': 'Слишком много попыток. Запросите новый код.'})
+
+        if reset_data['code'] != code:
+            reset_data['attempts'] = reset_data.get('attempts', 0) + 1
+            return jsonify({'success': False, 'message': 'Неверный код'})
+
+        reset_data['used'] = True
+
+        print(f"=== DEBUG Code verified successfully ===")
+        print(f"Redirecting to change_password_page")
+
+        return jsonify({
+            'success': True,
+            'message': 'Код подтвержден',
+            'redirect': '/change_password_page'
+        })
+
+    except Exception as e:
+        print(f"Ошибка в verify_reset_code: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    """Изменение пароля (из профиля или после сброса)"""
+    try:
+        email = session.get('user_email') or session.get('reset_email')
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+
+        print(f"=== DEBUG change_password ===")
+        print(f"Email from session: {email}")
+        print(f"User email: {session.get('user_email')}")
+        print(f"Reset email: {session.get('reset_email')}")
+        if not email:
+            return jsonify({'success': False, 'message': 'Сессия истекла'})
+        if not new_password or not confirm_password:
+            return jsonify({'success': False, 'message': 'Введите новый пароль и подтверждение'})
+        if new_password != confirm_password:
+            return jsonify({'success': False, 'message': 'Пароли не совпадают'})
+        if len(new_password) < 6:
+            return jsonify({'success': False, 'message': 'Пароль должен быть не менее 6 символов'})
+        if new_password.isdigit():
+            return jsonify({'success': False, 'message': 'Пароль не может состоять только из цифр'})
+        if new_password.isalpha():
+            return jsonify({'success': False, 'message': 'Пароль не может состоять только из букв'})
+
+        user = get_user_by_email(email)
+        if user and new_password == user['username']:
+            return jsonify({'success': False, 'message': 'Пароль не может совпадать с логином'})
+
+        if not update_user_password(email, new_password):
+            return jsonify({'success': False, 'message': 'Ошибка обновления пароля'})
+
+        if 'reset_email' in session:
+            session.pop('reset_email', None)
+            session.pop('reset_username', None)
+            if email in pending_password_resets:
+                del pending_password_resets[email]
+
+        if 'user_email' not in session:
+            session['user_logged_in'] = True
+            session['user_email'] = email
+            session['user_name'] = user['username']
+
+        return jsonify({
+            'success': True,
+            'message': 'Пароль успешно изменен',
+            'redirect': '/profile'
+        })
+    except Exception as e:
+        print(f"Ошибка в change_password: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
+
+
+@app.route('/resend_reset_code', methods=['POST'])
+def resend_reset_code():
+    """Повторная отправка кода сброса пароля"""
+    try:
+        email = session.get('reset_email')
+
+        if not email:
+            return jsonify({'success': False, 'message': 'Сессия истекла'})
+
+        user = get_user_by_email(email)
+        if not user:
+            return jsonify({'success': False, 'message': 'Пользователь не найден'})
+
+        if email in pending_password_resets:
+            last_send = pending_password_resets[email].get('last_resend')
+            if last_send:
+                time_diff = datetime.datetime.now() - last_send
+                if time_diff.total_seconds() < 60:
+                    return jsonify({
+                        'success': False,
+                        'message': 'Подождите 60 секунд перед повторной отправкой'
+                    })
+
+        send_verification_code(email, user['username'], "password_reset")
+        pending_password_resets[email]['last_resend'] = datetime.datetime.now()
+
+        return jsonify({'success': True, 'message': 'Код отправлен повторно'})
+
+    except Exception as e:
+        print(f"Ошибка в resend_reset_code: {e}")
+        return jsonify({'success': False, 'message': f'Ошибка сервера: {str(e)}'})
 
 @app.route('/profile')
 @email_verified_required
@@ -694,6 +905,7 @@ def how():
 @email_verified_required
 def fit():
     return render_template("fit.html")
+
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

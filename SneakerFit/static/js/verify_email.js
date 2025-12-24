@@ -1,53 +1,46 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Элементы DOM
+    const isResetPassword = window.location.pathname.includes('reset_password') ||
+                          document.title.includes('Сброс пароля') ||
+                          document.title.includes('Подтверждение кода');
+
     const codeInputs = document.querySelectorAll('.code-input');
     const hiddenCodeInput = document.getElementById('verificationCode');
-    const verifyForm = document.getElementById('verifyForm');
+    const verifyForm = document.getElementById('verifyForm') || document.getElementById('verifyResetForm');
     const resendBtn = document.getElementById('resendBtn');
     const messageEl = document.getElementById('message');
     const timerElement = document.getElementById('timer');
     const resendTimerElement = document.getElementById('resendTimer');
     const resendCountdownElement = document.getElementById('resendCountdown');
 
-    // Таймер для кода
-    let timeLeft = 15 * 60; // 15 минут в секундах
+    let timeLeft = 15 * 60;
     let timerInterval;
 
-    // Таймер для повторной отправки
     let resendTimeLeft = 60;
     let resendTimerInterval;
 
-    // Инициализация
     initCodeInputs();
     startTimer();
     setupEventListeners();
 
     function initCodeInputs() {
-        // Настройка ввода кода
         codeInputs.forEach((input, index) => {
             input.addEventListener('input', function(e) {
-                // Проверяем, что введена цифра
                 if (this.value && !/^\d$/.test(this.value)) {
                     this.value = '';
                     return;
                 }
 
-                // Обновляем скрытое поле
                 updateHiddenCode();
 
-                // Переход к следующему полю
                 if (this.value && index < codeInputs.length - 1) {
                     codeInputs[index + 1].focus();
                 }
             });
 
             input.addEventListener('keydown', function(e) {
-                // Обработка Backspace и Delete
                 if (e.key === 'Backspace' && !this.value && index > 0) {
                     codeInputs[index - 1].focus();
                 }
-
-                // Перемещение стрелками
                 if (e.key === 'ArrowLeft' && index > 0) {
                     codeInputs[index - 1].focus();
                 }
@@ -105,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
             clearInterval(timerInterval);
             return;
         }
-
         timeLeft--;
     }
 
@@ -128,33 +120,32 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setupEventListeners() {
-        // Обработка формы подтверждения
         if (verifyForm) {
             verifyForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
                 const btn = document.getElementById('verifyBtn');
-                const btnText = document.getElementById('verifyBtnText');
-                const spinner = document.getElementById('verifySpinner');
+                const btnText = document.getElementById('verifyBtnText') || document.getElementById('btnText');
+                const spinner = document.getElementById('verifySpinner') || document.getElementById('spinner');
 
-                // Проверяем, что все поля заполнены
                 const fullCode = hiddenCodeInput.value;
                 if (fullCode.length !== 5) {
                     showMessage('Введите все 5 цифр кода', 'error');
                     return;
                 }
 
-                // Отключаем кнопку и показываем спиннер
-                btnText.style.display = 'none';
-                spinner.style.display = 'inline-block';
-                btn.disabled = true;
-                messageEl.style.display = 'none';
+                if (btnText) btnText.style.display = 'none';
+                if (spinner) spinner.style.display = 'inline-block';
+                if (btn) btn.disabled = true;
+                if (messageEl) messageEl.style.display = 'none';
 
                 try {
                     const formData = new FormData();
                     formData.append('code', fullCode);
 
-                    const response = await fetch('/verify_email', {
+                    const endpoint = isResetPassword ? '/verify_reset_code' : '/verify_email';
+
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         body: formData
                     });
@@ -169,8 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         showMessage(result.message, 'error');
 
-                        // Очищаем поля при ошибке
-                        if (result.message.includes('Неверный код') || result.message.includes('истек')) {
+                        if (result.message.includes('Неверный код') ||
+                            result.message.includes('истек') ||
+                            result.message.includes('попыток')) {
                             resetCodeInputs();
                         }
                     }
@@ -179,14 +171,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     showMessage('Ошибка сети. Попробуйте еще раз.', 'error');
                 } finally {
                     // Восстанавливаем кнопку
-                    btnText.style.display = 'inline-block';
-                    spinner.style.display = 'none';
-                    btn.disabled = false;
+                    if (btnText) btnText.style.display = 'inline-block';
+                    if (spinner) spinner.style.display = 'none';
+                    if (btn) btn.disabled = false;
                 }
             });
         }
 
-        // Обработка повторной отправки кода
         if (resendBtn) {
             resendBtn.addEventListener('click', async function() {
                 const btn = this;
@@ -195,7 +186,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 btn.disabled = true;
 
                 try {
-                    const response = await fetch('/resend_verification_code', {
+                    const endpoint = isResetPassword ? '/resend_reset_code' : '/resend_verification_code';
+
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/x-www-form-urlencoded',
@@ -207,15 +200,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     if (result.success) {
                         showMessage('Код отправлен повторно', 'success');
 
-                        // Сбрасываем таймер
                         timeLeft = 15 * 60;
                         updateTimer();
-                        timerElement.classList.remove('expired');
+                        if (timerElement) timerElement.classList.remove('expired');
 
-                        // Очищаем поля ввода
                         resetCodeInputs();
 
-                        // Запускаем таймер повторной отправки
                         startResendTimer();
                     } else {
                         showMessage(result.message, 'error');
@@ -236,21 +226,98 @@ document.addEventListener('DOMContentLoaded', function() {
             input.value = '';
         });
         updateHiddenCode();
-        codeInputs[0].focus();
+        if (codeInputs.length > 0) {
+            codeInputs[0].focus();
+        }
     }
 
     function showMessage(text, type) {
+        if (!messageEl) return;
+
         messageEl.innerHTML = `<div class="${type}">${text}</div>`;
         messageEl.style.display = 'block';
 
-        // Автоматически скрываем сообщение через 5 секунд
         setTimeout(() => {
-            messageEl.style.display = 'none';
+            if (messageEl) {
+                messageEl.style.display = 'none';
+            }
         }, 5000);
     }
 
-    // Фокус на первое поле при загрузке
     if (codeInputs.length > 0) {
         codeInputs[0].focus();
     }
+
+    if (resendTimerElement && resendTimerElement.style.display !== 'none') {
+        startResendTimer();
+    }
 });
+
+if (!document.querySelector('#verify-email-styles')) {
+    const style = document.createElement('style');
+    style.id = 'verify-email-styles';
+    style.textContent = `
+        .success {
+            color: #4CAF50;
+            background: #E8F5E8;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .error {
+            color: #f44336;
+            background: #FFEBEE;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        .message {
+            margin-top: 15px;
+        }
+        .expired {
+            color: #f44336;
+            font-weight: bold;
+        }
+        .timer {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        .code-inputs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .code-input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 24px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s;
+        }
+        .code-input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+}

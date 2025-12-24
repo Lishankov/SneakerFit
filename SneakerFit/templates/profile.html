@@ -29,7 +29,6 @@
         </div>
     </div>
 
-
     <div class="profile-page" style="animation: fadeIn 0.5s ease;">
         <div class="profile-grid">
             <aside class="profile-card">
@@ -62,6 +61,11 @@
                 </form>
 
                 <p class="registered">Дата регистрации: <br> <strong>{{ user.registration_date }}</strong></p>
+                <div style="margin-top: 20px;">
+                    <a href="{{ url_for('change_password_page') }}" class="btn btn-secondary" style="width: 100%;">
+                        Сменить пароль
+                    </a>
+                </div>
             </aside>
 
             <main class="profile-main">

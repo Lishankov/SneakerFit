@@ -41,7 +41,11 @@
             <p style="text-align: center;">
                 Нет аккаунта? <a href="{{ url_for('register_page') }}">Зарегистрируйтесь</a>
             </p>
-
+            <div style="text-align: center; margin-top: 20px;">
+                <a href="{{ url_for('forgot_password_page') }}" style="color: #666; text-decoration: none;">
+                    Забыли пароль?
+                </a>
+            </div>
             <div id="message" class="message"></div>
         </div>
     </div>
